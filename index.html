@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-title">
+      <strong id="appTitle" data-i18n="appTitle">لوحة مراقبة المخزون — EC 📊</strong>
+      <span id="lastUpdated">آخر تحديث: لم يتم الاستيراد بعد</span>
+    </div>
+    <div class="topbar-actions">
+      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+      <div class="settings-wrap">
+        <button id="settingsBtn" class="pill-btn settings-btn" type="button" aria-haspopup="true" aria-expanded="false">
+          <span>⚙️</span><span data-i18n="settings">الإعدادات</span>
+        </button>
+        <div id="settingsPanel" class="settings-panel" hidden>
+          <div class="settings-panel-header" data-i18n="settings">الإعدادات</div>
+          <div class="settings-row">
+            <span data-i18n="appearance">المظهر</span>
+            <div class="segmented-control" role="group" aria-label="Appearance">
+              <button id="themeLightBtn" type="button" data-i18n="lightMode">☀️ فاتح</button>
+              <button id="themeDarkBtn" type="button" data-i18n="darkMode">🌙 داكن</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <span data-i18n="language">اللغة</span>
+            <div class="segmented-control" role="group" aria-label="Language">
+              <button id="langArBtn" type="button">العربية</button>
+              <button id="langEnBtn" type="button">English</button>
+            </div>
+          </div>
+          <div class="settings-row settings-actions-row">
+            <span data-i18n="dataActions">الملفات</span>
+            <div class="settings-action-grid">
+              <button id="importBtn" class="pill-btn primary" type="button" data-i18n="importFile">📁 استيراد ملف</button>
+              <button id="templateXlsxBtn" class="pill-btn" type="button" data-i18n="templateXlsx">⬇ قالب XLSX</button>
+              <button id="templateCsvBtn" class="pill-btn" type="button" data-i18n="templateCsv">⬇ قالب CSV</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <section id="messageBox" class="message-box" hidden></section>
+
+    <section id="emptyState" class="empty-state">
+      <div class="empty-card">
+        <div class="empty-icon">📦</div>
+        <h1>Inventory Manager</h1>
+        <p data-i18n="emptySubtitle">استورد ملف المخزون لعرض لوحة تحليل تفاعلية.</p>
+        <div class="empty-actions">
+          <button class="pill-btn primary" type="button" onclick="document.querySelector('#fileInput').click()" data-i18n="importXlsxCsv">استيراد XLSX / CSV</button>
+          <button class="pill-btn" type="button" onclick="document.querySelector('#templateXlsxBtn').click()" data-i18n="downloadTemplate">تنزيل القالب</button>
+        </div>
+      </div>
+    </section>
+
+    <main id="dashboard" class="dashboard" hidden>
+      <section class="filters-card">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="بحث عن منتج أو موقع أو رقم دفعة أو فئة...">
+        </div>
+        <select id="locationFilter" aria-label="كل الفروع / المواقع"></select>
+        <select id="categoryFilter" aria-label="كل الفئات"></select>
+        <select id="statusFilter" aria-label="كل الحالات"></select>
+        <select id="uomFilter" aria-label="كل وحدات القياس"></select>
+        <button id="exportCsvBtn" class="pill-btn primary" type="button" data-i18n="exportCsv">⬇ تصدير CSV</button>
+        <button id="exportXlsxBtn" class="pill-btn" type="button" data-i18n="exportXlsx">⬇ تصدير XLSX</button>
+        <button id="resetFiltersBtn" class="pill-btn" type="button" data-i18n="resetFilters">إعادة التصفية</button>
+        <details class="advanced-filters">
+          <summary data-i18n="advancedOptions">خيارات إضافية</summary>
+          <div class="advanced-grid">
+            <label><span data-i18n="dateFrom">تاريخ الإزالة من</span><input id="dateFrom" type="date"></label>
+            <label><span data-i18n="dateTo">تاريخ الإزالة إلى</span><input id="dateTo" type="date"></label>
+            <label><span data-i18n="lowStockThreshold">حد المخزون المنخفض</span><input id="lowStockThreshold" type="number" min="0" step="1" value="5"></label>
+            <button id="clearBtn" class="pill-btn danger" type="button" data-i18n="clearData">مسح البيانات</button>
+          </div>
+        </details>
+      </section>
+
+      <section class="kpi-grid" aria-label="Inventory KPIs">
+        <article class="kpi-card blue"><span data-i18n="kpiProducts">إجمالي المنتجات</span><strong id="kpiProducts">0</strong><small id="kpiRowsSub">0 سجل</small></article>
+        <article class="kpi-card red"><span data-i18n="kpiOut">نفاد المخزون</span><strong id="kpiOut">0</strong><small data-i18n="kpiOutSub">كمية متاحة = 0</small></article>
+        <article class="kpi-card amber"><span data-i18n="kpiLow">مخزون منخفض</span><strong id="kpiLow">0</strong><small data-i18n="kpiLowSub">حسب الحد المحدد</small></article>
+        <article class="kpi-card green"><span data-i18n="kpiOnHand">إجمالي الكميات</span><strong id="kpiOnHand">0</strong><small data-i18n="kpiOnHandSub">وحدات موجودة</small></article>
+        <article class="kpi-card purple"><span data-i18n="kpiValue">إجمالي القيمة</span><strong id="kpiValue">0</strong><small data-i18n="kpiValueSub">القيمة الإجمالية</small></article>
+        <article class="kpi-card slate"><span data-i18n="kpiLocations">عدد الفروع</span><strong id="kpiLocations">0</strong><small data-i18n="kpiLocationsSub">فرع / موقع مخزن</small></article>
+        <article class="kpi-card hidden-kpi"><span>Rows</span><strong id="kpiRows">0</strong><small>0 filtered</small></article>
+        <article class="kpi-card hidden-kpi"><span>Available</span><strong id="kpiAvailable">0</strong><small>Available</small></article>
+        <article class="kpi-card hidden-kpi"><span>Reserved</span><strong id="kpiReserved">0</strong><small>Reserved</small></article>
+      </section>
+
+      <section class="charts-grid">
+        <article class="chart-card"><canvas id="valueCategoryChart"></canvas></article>
+        <article class="chart-card"><canvas id="categoryCountChart"></canvas></article>
+        <article class="chart-card"><canvas id="locationQtyChart"></canvas></article>
+        <article class="chart-card"><canvas id="topProductsChart"></canvas></article>
+        <article class="chart-card"><canvas id="stockStatusChart"></canvas></article>
+        <article class="chart-card"><canvas id="removalTimelineChart"></canvas></article>
+      </section>
+
+      <section class="table-panel">
+        <div class="table-header">
+          <div>
+            <h2 data-i18n="productDetails">تفاصيل المنتجات</h2>
+            <p id="tableInfo">0 سجل</p>
+          </div>
+          <div class="table-tools">
+            <label><span data-i18n="rowsPerPage">عدد الصفوف</span><select id="pageSizeSelect"><option>10</option><option selected>25</option><option>50</option><option>100</option></select></label>
+            <details class="columns-menu">
+              <summary data-i18n="columns">الأعمدة</summary>
+              <div id="columnToggles"></div>
+            </details>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="inventoryTable"></table>
+        </div>
+        <div class="pagination">
+          <button id="nextPageBtn" class="pill-btn" type="button" data-i18n="next">التالي</button>
+          <span id="pageInfo">صفحة 1 من 1</span>
+          <button id="prevPageBtn" class="pill-btn" type="button" data-i18n="previous">السابق</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="tooltip" class="tooltip" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
