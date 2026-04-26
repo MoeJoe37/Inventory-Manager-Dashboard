@@ -72,6 +72,7 @@
         <select id="categoryFilter" aria-label="كل الفئات"></select>
         <select id="statusFilter" aria-label="كل الحالات"></select>
         <select id="uomFilter" aria-label="كل وحدات القياس"></select>
+        <button id="productTotalsToggle" class="pill-btn toggle-filter" type="button" aria-pressed="false" data-i18n="productTotals">🧮 إجمالي كل منتج</button>
         <button id="exportCsvBtn" class="pill-btn primary" type="button" data-i18n="exportCsv">⬇ تصدير CSV</button>
         <button id="exportXlsxBtn" class="pill-btn" type="button" data-i18n="exportXlsx">⬇ تصدير XLSX</button>
         <button id="resetFiltersBtn" class="pill-btn" type="button" data-i18n="resetFilters">إعادة التصفية</button>
@@ -121,7 +122,6 @@
           <article class="chart-card"><canvas id="locationQtyChart"></canvas></article>
           <article class="chart-card"><canvas id="topProductsChart"></canvas></article>
           <article class="chart-card"><canvas id="stockStatusChart"></canvas></article>
-          <article class="chart-card"><canvas id="removalTimelineChart"></canvas></article>
         </div>
         <div class="charts-actions">
           <button id="toggleChartsBtn" class="pill-btn primary" type="button" data-i18n="moreCharts">عرض المزيد من الرسوم</button>
@@ -133,7 +133,6 @@
           <article class="chart-card"><canvas id="uomChart"></canvas></article>
           <article class="chart-card"><canvas id="reservedLocationChart"></canvas></article>
           <article class="chart-card"><canvas id="lowStockProductsChart"></canvas></article>
-          <article class="chart-card"><canvas id="batchCategoryChart"></canvas></article>
           <article class="chart-card"><canvas id="unitValueChart"></canvas></article>
         </div>
       </section>

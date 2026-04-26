@@ -119,6 +119,17 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .pill-btn.danger { background: #fee2e2; border-color: #fecaca; color: #b91c1c; }
 body.dark .pill-btn.danger { background: rgba(239, 68, 68, .16); border-color: rgba(239, 68, 68, .35); color: #fca5a5; }
 
+.pill-btn.toggle-filter.active {
+  background: color-mix(in srgb, var(--primary) 12%, var(--panel));
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--line));
+  color: var(--primary);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, .12);
+}
+body.dark .pill-btn.toggle-filter.active {
+  background: rgba(37, 99, 235, .18);
+  color: #93c5fd;
+}
+
 .settings-wrap { position: relative; }
 .settings-btn { display: inline-flex; align-items: center; gap: 5px; }
 .settings-panel {
@@ -243,7 +254,7 @@ body.dark .message-box.success { background: rgba(34, 197, 94, .12); border-colo
 
 .filters-card {
   display: grid;
-  grid-template-columns: minmax(260px, 1.6fr) repeat(4, minmax(115px, .8fr)) repeat(3, max-content);
+  grid-template-columns: minmax(260px, 1.6fr) repeat(4, minmax(115px, .8fr)) repeat(4, max-content);
   gap: 8px;
   align-items: center;
   padding: 10px 12px;

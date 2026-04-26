@@ -45,6 +45,8 @@ const I18N = {
     dateFrom: "تاريخ الإزالة من",
     dateTo: "تاريخ الإزالة إلى",
     lowStockThreshold: "حد المخزون المنخفض",
+    productTotals: "🧮 إجمالي كل منتج",
+    productTotalsActive: "✓ إجمالي كل منتج",
     clearData: "مسح البيانات",
     kpiProducts: "إجمالي المنتجات",
     kpiOut: "نفاد المخزون",
@@ -194,6 +196,8 @@ const I18N = {
     dateFrom: "Removal date from",
     dateTo: "Removal date to",
     lowStockThreshold: "Low-stock threshold",
+    productTotals: "🧮 Total by product",
+    productTotalsActive: "✓ Total by product",
     clearData: "Clear data",
     kpiProducts: "Total products",
     kpiOut: "Out of stock",
@@ -400,6 +404,7 @@ const state = {
   showMoreCharts: false,
   expandedChartId: null,
   quickView: null,
+  productTotals: false,
   visibleOptionalKpis: new Set(initialPreferences.optionalKpis || [])
 };
 
@@ -418,6 +423,7 @@ window.addEventListener("DOMContentLoaded", () => {
   renderOptionalKpiToggles();
   bindEvents();
   setupChartExpandButtons();
+  updateProductTotalsToggle();
   renderTable();
   updateLastUpdated();
   window.addEventListener("resize", debounce(updateCharts, 160));
@@ -440,6 +446,12 @@ function bindEvents() {
   $("#categoryFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#locationFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#uomFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
+  $("#productTotalsToggle")?.addEventListener("click", () => {
+    state.productTotals = !state.productTotals;
+    state.page = 1;
+    updateProductTotalsToggle();
+    applyFilters();
+  });
   $("#statusFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#dateFrom").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#dateTo").addEventListener("change", () => { state.page = 1; applyFilters(); });
@@ -489,6 +501,27 @@ function refreshFormatters() {
   currencyFormatter = new Intl.NumberFormat(getLocale(), { maximumFractionDigits: 2 });
 }
 
+function formatCompactMoney(value) {
+  const number = Number(value) || 0;
+  const abs = Math.abs(number);
+  const units = [
+    { limit: 1_000_000_000_000, suffix: "T" },
+    { limit: 1_000_000_000, suffix: "B" },
+    { limit: 1_000_000, suffix: "M" },
+    { limit: 1_000, suffix: "K" }
+  ];
+  const unit = units.find(item => abs >= item.limit);
+  if (!unit) return currencyFormatter.format(Math.round(number * 100) / 100);
+  const scaled = number / unit.limit;
+  const scaledAbs = Math.abs(scaled);
+  const fractionDigits = scaledAbs >= 100 ? 0 : 1;
+  const rounded = new Intl.NumberFormat(getLocale(), {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: fractionDigits
+  }).format(scaled);
+  return rounded + unit.suffix;
+}
+
 function t(key, values = {}) {
   const dictionary = I18N[state?.language || "ar"] || I18N.ar;
   const fallback = I18N.en[key] || I18N.ar[key] || key;
@@ -521,6 +554,7 @@ function setLanguage(language, persist = true) {
   document.querySelectorAll("[data-i18n]").forEach(element => element.textContent = t(element.dataset.i18n));
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
   updateSettingsUi();
+  updateProductTotalsToggle();
   requestAnimationFrame(positionSettingsPanel);
   updateMoreChartsUi();
   updateChartExpandLabels();
@@ -551,6 +585,14 @@ function updateMoreChartsUi() {
     toggleButton.textContent = t(state.showMoreCharts ? "lessCharts" : "moreCharts");
     toggleButton.setAttribute("aria-expanded", String(state.showMoreCharts));
   }
+}
+
+function updateProductTotalsToggle() {
+  const button = $("#productTotalsToggle");
+  if (!button) return;
+  button.classList.toggle("active", state.productTotals);
+  button.setAttribute("aria-pressed", String(state.productTotals));
+  button.textContent = t(state.productTotals ? "productTotalsActive" : "productTotals");
 }
 
 function renderOptionalKpiToggles() {
@@ -741,6 +783,8 @@ async function handleFileImport(file) {
     state.page = 1;
     state.sortKey = "value";
     state.sortDirection = "desc";
+    state.productTotals = false;
+    updateProductTotalsToggle();
     updateFilterOptions();
     resetFilters(false);
     $("#dashboard").hidden = false;
@@ -942,17 +986,25 @@ function applyFilters() {
   const status = $("#statusFilter").value;
   const dateFrom = parseDate($("#dateFrom").value);
   const dateTo = parseDate($("#dateTo").value);
-  state.filteredRows = state.rows.filter(row => {
+
+  let workingRows = state.rows.filter(row => {
     if (search && !row.searchText.includes(search)) return false;
     if (category && row.category !== category) return false;
     if (location && row.location !== location) return false;
     if (uom && row.uom !== uom) return false;
-    if (status && row.status !== status) return false;
-    if (state.quickView && !rowMatchesKpiView(row, state.quickView)) return false;
     if (dateFrom && (!row.removalDate || row.removalDate < dateFrom)) return false;
     if (dateTo && (!row.removalDate || row.removalDate > dateTo)) return false;
     return true;
   });
+
+  if (state.productTotals) workingRows = aggregateRowsByProduct(workingRows);
+
+  state.filteredRows = workingRows.filter(row => {
+    if (status && row.status !== status) return false;
+    if (state.quickView && !rowMatchesKpiView(row, state.quickView)) return false;
+    return true;
+  });
+
   sortRows();
   renderKpis();
   renderInsights();
@@ -968,6 +1020,8 @@ function resetFilters(shouldApply = true) {
   $("#locationFilter").value = "";
   $("#uomFilter").value = "";
   $("#statusFilter").value = "";
+  state.productTotals = false;
+  updateProductTotalsToggle();
   $("#dateFrom").value = "";
   $("#dateTo").value = "";
   if (shouldApply) {
@@ -988,6 +1042,8 @@ function clearData() {
   state.lastUpdatedFileName = "";
   state.showMoreCharts = false;
   state.quickView = null;
+  state.productTotals = false;
+  updateProductTotalsToggle();
   updateMoreChartsUi();
   renderQuickViewBar();
   $("#dashboard").hidden = true;
@@ -1065,7 +1121,7 @@ function renderQuickViewBar() {
     return;
   }
   const key = KPI_VIEW_LABEL_KEYS[state.quickView] || "quickRows";
-  label.textContent = `${t(key)} • ${t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.rows.length) })}`;
+  label.textContent = `${t(key)} • ${t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.productTotals ? aggregateRowsByProduct(state.rows).length : state.rows.length) })}`;
   bar.hidden = false;
 }
 
@@ -1081,7 +1137,7 @@ function renderKpis() {
   const categoriesCount = new Set(rows.map(row => row.category).filter(Boolean)).size;
   const locationsCount = new Set(rows.map(row => row.location).filter(Boolean)).size;
   const uomCount = new Set(rows.map(row => row.uom).filter(Boolean)).size;
-  const batchCount = new Set(rows.map(row => row.lot).filter(Boolean)).size;
+  const batchCount = state.productTotals ? rows.reduce((total, row) => total + (Number(row.lotCount) || (row.lot ? 1 : 0)), 0) : new Set(rows.map(row => row.lot).filter(Boolean)).size;
   const datedCount = rows.filter(row => row.removalDate).length;
   const valueBaseQty = rows.reduce((total, row) => total + Math.max(Math.abs(row.onHand), Math.abs(row.available), 0), 0);
   const avgUnitValue = valueBaseQty ? totalValue / valueBaseQty : 0;
@@ -1145,8 +1201,7 @@ function updateCharts() {
     "categoryCountChart",
     "locationQtyChart",
     "topProductsChart",
-    "stockStatusChart",
-    "removalTimelineChart"
+    "stockStatusChart"
   ];
   const extraCharts = [
     "valueLocationChart",
@@ -1155,7 +1210,6 @@ function updateCharts() {
     "uomChart",
     "reservedLocationChart",
     "lowStockProductsChart",
-    "batchCategoryChart",
     "unitValueChart"
   ];
   mainCharts.forEach(id => renderChartById(id));
@@ -1182,7 +1236,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
     case "valueCategoryChart":
       return drawVerticalBarChart(canvas, top(groupSum(rows, "category", "value"), 8, 16), {
         title: t("chartValueByCategory"),
-        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        valueFormatter: formatCompactMoney,
         emptyText: t("emptyValueCategory"),
         onClick: label => setFilter("#categoryFilter", label)
       });
@@ -1204,7 +1258,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
     case "topProductsChart":
       return drawHorizontalBarChart(canvas, top(groupSum(rows, "product", "value"), 8, 18), {
         title: t("chartTopProducts"),
-        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        valueFormatter: formatCompactMoney,
         emptyText: t("emptyProducts"),
         onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
       });
@@ -1222,7 +1276,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
     case "valueLocationChart":
       return drawVerticalBarChart(canvas, top(groupSum(rows, "location", "value"), 8, 18), {
         title: t("chartValueByLocation"),
-        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        valueFormatter: formatCompactMoney,
         emptyText: t("emptyValueLocation"),
         onClick: label => setFilter("#locationFilter", label)
       });
@@ -1271,7 +1325,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
     case "unitValueChart":
       return drawHorizontalBarChart(canvas, topUnitValueProducts(rows, expanded ? 18 : 8), {
         title: t("chartUnitValueProducts"),
-        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        valueFormatter: formatCompactMoney,
         emptyText: t("emptyUnitValueProducts"),
         onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
       });
@@ -1290,7 +1344,7 @@ function renderTable() {
     <tbody>${pageRows.map(row => `<tr>${visible.map(column => `<td class="${column.rtl ? "rtl" : ""}">${formatCell(row, column)}</td>`).join("")}</tr>`).join("")}</tbody>
   `;
   $$(`#inventoryTable th.sortable`).forEach(th => th.addEventListener("click", () => changeSort(th.dataset.key)));
-  $("#tableInfo").textContent = t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.rows.length) });
+  $("#tableInfo").textContent = t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.productTotals ? aggregateRowsByProduct(state.rows).length : state.rows.length) });
   $("#pageInfo").textContent = t("pageInfo", { page: numberFormatter.format(state.page), pages: numberFormatter.format(pages) });
   $("#prevPageBtn").disabled = state.page <= 1;
   $("#nextPageBtn").disabled = state.page >= pages;
@@ -1346,6 +1400,82 @@ function columnLabel(column) {
 
 function statusLabel(status) {
   return { Ready: t("statusReady"), Low: t("statusLow"), Negative: t("statusNegative"), Out: t("statusOut"), Reserved: t("statusReserved"), Dated: t("statusDated") }[status] || status;
+}
+
+function aggregateRowsByProduct(rows) {
+  const map = new Map();
+  rows.forEach(row => {
+    const key = row.product || "Unspecified";
+    if (!map.has(key)) {
+      map.set(key, {
+        sourceRow: row.sourceRow,
+        product: key,
+        categories: new Set(),
+        locations: new Set(),
+        lots: new Set(),
+        uoms: new Set(),
+        dates: [],
+        onHand: 0,
+        available: 0,
+        reserved: 0,
+        value: 0,
+        sourceRows: 0
+      });
+    }
+    const item = map.get(key);
+    item.sourceRows += 1;
+    if (row.category) item.categories.add(row.category);
+    if (row.location) item.locations.add(row.location);
+    if (row.lot) item.lots.add(row.lot);
+    if (row.uom) item.uoms.add(row.uom);
+    if (row.removalDate) item.dates.push(row.removalDate);
+    item.onHand += Number(row.onHand) || 0;
+    item.available += Number(row.available) || 0;
+    item.reserved += Number(row.reserved) || 0;
+    item.value += Number(row.value) || 0;
+  });
+
+  return Array.from(map.values()).map((item, index) => {
+    const sortedDates = item.dates.slice().sort((a, b) => a - b);
+    const removalDate = sortedDates[0] || null;
+    const valueBaseQty = Math.abs(item.onHand) > 0 ? Math.abs(item.onHand) : Math.abs(item.available);
+    const row = {
+      sourceRow: item.sourceRow || index + 1,
+      product: item.product,
+      category: summarizeValues(item.categories),
+      location: summarizeValues(item.locations),
+      lot: summarizeValues(item.lots),
+      lotCount: item.lots.size,
+      removalDate,
+      removalDateText: summarizeDates(sortedDates),
+      onHand: item.onHand,
+      available: item.available,
+      reserved: item.reserved,
+      uom: summarizeValues(item.uoms),
+      value: item.value,
+      valuePerUnit: valueBaseQty ? item.value / valueBaseQty : 0,
+      sourceRows: item.sourceRows,
+      status: "Ready",
+      searchText: ""
+    };
+    row.status = getStatus(row);
+    row.searchText = [row.product, row.category, row.location, row.lot, row.uom, row.status, row.removalDateText].join(" ").toLowerCase();
+    return row;
+  });
+}
+
+function summarizeValues(valuesSet) {
+  const values = Array.from(valuesSet || []).filter(Boolean).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }));
+  if (!values.length) return "";
+  const visible = values.slice(0, 3).join(" | ");
+  return values.length > 3 ? visible + " +" + (values.length - 3) : visible;
+}
+
+function summarizeDates(dates) {
+  if (!dates.length) return "";
+  const unique = Array.from(new Set(dates.map(formatDateInput))).sort();
+  const visible = unique.slice(0, 2).join(" | ");
+  return unique.length > 2 ? visible + " +" + (unique.length - 2) : visible;
 }
 
 function groupSum(rows, key, valueKey) {
