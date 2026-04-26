@@ -79,8 +79,6 @@
         <details class="advanced-filters">
           <summary data-i18n="advancedOptions">خيارات إضافية</summary>
           <div class="advanced-grid">
-            <label><span data-i18n="dateFrom">تاريخ الإزالة من</span><input id="dateFrom" type="date"></label>
-            <label><span data-i18n="dateTo">تاريخ الإزالة إلى</span><input id="dateTo" type="date"></label>
             <label><span data-i18n="lowStockThreshold">حد المخزون المنخفض</span><input id="lowStockThreshold" type="number" min="0" step="1" value="5"></label>
             <button id="clearBtn" class="pill-btn danger" type="button" data-i18n="clearData">مسح البيانات</button>
             <div class="optional-kpi-panel">
@@ -116,24 +114,29 @@
       </section>
 
       <section class="charts-section" aria-label="Inventory charts">
-        <div class="charts-grid">
-          <article class="chart-card"><canvas id="valueCategoryChart"></canvas></article>
-          <article class="chart-card"><canvas id="categoryCountChart"></canvas></article>
-          <article class="chart-card"><canvas id="locationQtyChart"></canvas></article>
-          <article class="chart-card"><canvas id="topProductsChart"></canvas></article>
-          <article class="chart-card"><canvas id="stockStatusChart"></canvas></article>
+        <div class="charts-toolbar">
+          <div>
+            <h2 data-i18n="chartsTitle">الرسوم البيانية</h2>
+            <p id="chartsInfo" data-i18n="chartsInfo">الرسمان الأساسيان ظاهران دائمًا. اختر الرسوم الإضافية من القائمة.</p>
+          </div>
+          <details id="chartSelectorMenu" class="chart-selector">
+            <summary><span aria-hidden="true">📊</span><span data-i18n="selectCharts">اختيار الرسوم</span></summary>
+            <div id="chartSelectorOptions" class="chart-selector-options"></div>
+          </details>
         </div>
-        <div class="charts-actions">
-          <button id="toggleChartsBtn" class="pill-btn primary" type="button" data-i18n="moreCharts">عرض المزيد من الرسوم</button>
-        </div>
-        <div id="extraChartsGrid" class="charts-grid extra-charts" hidden>
-          <article class="chart-card"><canvas id="valueLocationChart"></canvas></article>
-          <article class="chart-card"><canvas id="availableReservedCategoryChart"></canvas></article>
-          <article class="chart-card"><canvas id="skuCategoryChart"></canvas></article>
-          <article class="chart-card"><canvas id="uomChart"></canvas></article>
-          <article class="chart-card"><canvas id="reservedLocationChart"></canvas></article>
-          <article class="chart-card"><canvas id="lowStockProductsChart"></canvas></article>
-          <article class="chart-card"><canvas id="unitValueChart"></canvas></article>
+        <div id="chartsGrid" class="charts-grid">
+          <article class="chart-card" data-chart-id="valueCategoryChart" data-default-chart="true"><canvas id="valueCategoryChart"></canvas></article>
+          <article class="chart-card" data-chart-id="categoryCountChart" data-default-chart="true"><canvas id="categoryCountChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="locationQtyChart" hidden><canvas id="locationQtyChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="topProductsChart" hidden><canvas id="topProductsChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="stockStatusChart" hidden><canvas id="stockStatusChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="valueLocationChart" hidden><canvas id="valueLocationChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="availableReservedCategoryChart" hidden><canvas id="availableReservedCategoryChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="skuCategoryChart" hidden><canvas id="skuCategoryChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="uomChart" hidden><canvas id="uomChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="reservedLocationChart" hidden><canvas id="reservedLocationChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="lowStockProductsChart" hidden><canvas id="lowStockProductsChart"></canvas></article>
+          <article class="chart-card optional-chart" data-chart-id="unitValueChart" hidden><canvas id="unitValueChart"></canvas></article>
         </div>
       </section>
 

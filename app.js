@@ -110,6 +110,12 @@ const I18N = {
     chartTopProducts: "أعلى المنتجات حسب القيمة",
     chartStockStatus: "حالة المخزون",
     chartRemovalTimeline: "تاريخ الإزالة حسب الشهر",
+    chartsTitle: "الرسوم البيانية",
+    chartsInfo: "القيمة حسب الفئة وتوزيع الكميات حسب الفئة ظاهران دائمًا. اختر أي رسوم إضافية من القائمة.",
+    selectCharts: "اختيار الرسوم",
+    chartSelectorHint: "اختر أكثر من رسم، ثم أغلق القائمة يدويًا.",
+    defaultChart: "أساسي",
+    optionalChart: "اختياري",
     moreCharts: "عرض المزيد من الرسوم",
     lessCharts: "إخفاء الرسوم الإضافية",
     expandChart: "تكبير الرسم",
@@ -261,6 +267,12 @@ const I18N = {
     chartTopProducts: "Top products by value",
     chartStockStatus: "Stock status",
     chartRemovalTimeline: "Removal date by month",
+    chartsTitle: "Charts",
+    chartsInfo: "Value by category and quantity distribution by category are always visible. Select any extra charts from the menu.",
+    selectCharts: "Select charts",
+    chartSelectorHint: "Select multiple charts, then close the menu manually.",
+    defaultChart: "Default",
+    optionalChart: "Optional",
     moreCharts: "See more charts",
     lessCharts: "Show fewer charts",
     expandChart: "Expand chart",
@@ -354,6 +366,21 @@ const OPTIONAL_KPI_DEFINITIONS = [
   { key: "reservedValue", labelKey: "kpiReservedValue" }
 ];
 const OPTIONAL_KPI_KEYS = new Set(OPTIONAL_KPI_DEFINITIONS.map(item => item.key));
+
+const DEFAULT_CHART_IDS = new Set(["valueCategoryChart", "categoryCountChart"]);
+const OPTIONAL_CHART_DEFINITIONS = [
+  { id: "locationQtyChart", labelKey: "chartQtyByLocation" },
+  { id: "topProductsChart", labelKey: "chartTopProducts" },
+  { id: "stockStatusChart", labelKey: "chartStockStatus" },
+  { id: "valueLocationChart", labelKey: "chartValueByLocation" },
+  { id: "availableReservedCategoryChart", labelKey: "chartAvailableReservedByCategory" },
+  { id: "skuCategoryChart", labelKey: "chartProductsByCategory" },
+  { id: "uomChart", labelKey: "chartUomDistribution" },
+  { id: "reservedLocationChart", labelKey: "chartReservedByLocation" },
+  { id: "lowStockProductsChart", labelKey: "chartLowStockProducts" },
+  { id: "unitValueChart", labelKey: "chartUnitValueProducts" }
+];
+const OPTIONAL_CHART_IDS = new Set(OPTIONAL_CHART_DEFINITIONS.map(item => item.id));
 const KPI_VIEW_LABEL_KEYS = {
   products: "quickProducts",
   out: "quickOutStock",
@@ -405,7 +432,8 @@ const state = {
   expandedChartId: null,
   quickView: null,
   productTotals: false,
-  visibleOptionalKpis: new Set(initialPreferences.optionalKpis || [])
+  visibleOptionalKpis: new Set(initialPreferences.optionalKpis || []),
+  selectedCharts: new Set(initialPreferences.selectedCharts || [])
 };
 
 const palette = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#22c55e", "#06b6d4", "#f97316", "#64748b", "#ec4899", "#84cc16", "#0ea5e9"];
@@ -421,8 +449,10 @@ window.addEventListener("DOMContentLoaded", () => {
   renderRequiredColumns();
   renderColumnToggles();
   renderOptionalKpiToggles();
+  renderChartSelector();
   bindEvents();
   setupChartExpandButtons();
+  applyChartVisibility();
   updateProductTotalsToggle();
   renderTable();
   updateLastUpdated();
@@ -453,8 +483,8 @@ function bindEvents() {
     applyFilters();
   });
   $("#statusFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
-  $("#dateFrom").addEventListener("change", () => { state.page = 1; applyFilters(); });
-  $("#dateTo").addEventListener("change", () => { state.page = 1; applyFilters(); });
+  $("#dateFrom")?.addEventListener("change", () => { state.page = 1; applyFilters(); });
+  $("#dateTo")?.addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#lowStockThreshold").addEventListener("input", () => { state.lowStockThreshold = Math.max(0, parseNumber($("#lowStockThreshold").value)); updateStatuses(); applyFilters(); });
   bindKpiQuickViews();
   $("#clearQuickViewBtn")?.addEventListener("click", clearStockQuickView);
@@ -477,16 +507,22 @@ function loadPreferences() {
     return {
       language: parsed.language === "en" ? "en" : "ar",
       theme: parsed.theme === "dark" ? "dark" : "light",
-      optionalKpis: Array.isArray(parsed.optionalKpis) ? parsed.optionalKpis.filter(key => OPTIONAL_KPI_KEYS.has(key)) : []
+      optionalKpis: Array.isArray(parsed.optionalKpis) ? parsed.optionalKpis.filter(key => OPTIONAL_KPI_KEYS.has(key)) : [],
+      selectedCharts: Array.isArray(parsed.selectedCharts) ? parsed.selectedCharts.filter(id => OPTIONAL_CHART_IDS.has(id)) : []
     };
   } catch {
-    return { language: "ar", theme: "light", optionalKpis: [] };
+    return { language: "ar", theme: "light", optionalKpis: [], selectedCharts: [] };
   }
 }
 
 function savePreferences() {
   try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ language: state.language, theme: state.theme, optionalKpis: Array.from(state.visibleOptionalKpis) }));
+    localStorage.setItem(PREFS_KEY, JSON.stringify({
+      language: state.language,
+      theme: state.theme,
+      optionalKpis: Array.from(state.visibleOptionalKpis),
+      selectedCharts: Array.from(state.selectedCharts)
+    }));
   } catch {
     /* Local storage can be unavailable in hardened browser modes. */
   }
@@ -561,6 +597,8 @@ function setLanguage(language, persist = true) {
   updateFilterOptions();
   renderColumnToggles();
   renderOptionalKpiToggles();
+  renderChartSelector();
+  applyChartVisibility();
   renderKpis();
   renderTable();
   renderQuickViewBar();
@@ -617,6 +655,51 @@ function renderOptionalKpiToggles() {
 function updateOptionalKpiCards() {
   $$(".optional-kpi[data-kpi-card]").forEach(card => {
     card.hidden = !state.visibleOptionalKpis.has(card.dataset.kpiCard);
+  });
+}
+
+function renderChartSelector() {
+  const container = $("#chartSelectorOptions");
+  if (!container) return;
+  const defaultItems = [
+    { id: "valueCategoryChart", labelKey: "chartValueByCategory" },
+    { id: "categoryCountChart", labelKey: "chartQtyByCategory" }
+  ];
+  const defaultHtml = defaultItems.map(item => `
+    <label class="chart-option locked">
+      <input type="checkbox" checked disabled>
+      <span>${escapeHtml(t(item.labelKey))}</span>
+      <small>${escapeHtml(t("defaultChart"))}</small>
+    </label>
+  `).join("");
+  const optionalHtml = OPTIONAL_CHART_DEFINITIONS.map(item => {
+    const checked = state.selectedCharts.has(item.id) ? "checked" : "";
+    return `
+      <label class="chart-option">
+        <input type="checkbox" value="${escapeHtml(item.id)}" ${checked}>
+        <span>${escapeHtml(t(item.labelKey))}</span>
+        <small>${escapeHtml(t("optionalChart"))}</small>
+      </label>
+    `;
+  }).join("");
+  container.innerHTML = `<p>${escapeHtml(t("chartSelectorHint"))}</p>${defaultHtml}${optionalHtml}`;
+  container.querySelectorAll("input[type=checkbox]:not(:disabled)").forEach(input => {
+    input.addEventListener("change", event => {
+      const id = event.currentTarget.value;
+      if (event.currentTarget.checked) state.selectedCharts.add(id);
+      else state.selectedCharts.delete(id);
+      applyChartVisibility();
+      savePreferences();
+      requestAnimationFrame(() => updateCharts());
+    });
+  });
+}
+
+function applyChartVisibility() {
+  $$(".chart-card[data-chart-id]").forEach(card => {
+    const id = card.dataset.chartId;
+    const visible = DEFAULT_CHART_IDS.has(id) || state.selectedCharts.has(id);
+    card.hidden = !visible;
   });
 }
 function toggleMoreCharts() {
@@ -984,8 +1067,8 @@ function applyFilters() {
   const location = $("#locationFilter").value;
   const uom = $("#uomFilter").value;
   const status = $("#statusFilter").value;
-  const dateFrom = parseDate($("#dateFrom").value);
-  const dateTo = parseDate($("#dateTo").value);
+  const dateFrom = parseDate($("#dateFrom")?.value || "");
+  const dateTo = parseDate($("#dateTo")?.value || "");
 
   let workingRows = state.rows.filter(row => {
     if (search && !row.searchText.includes(search)) return false;
@@ -1022,8 +1105,8 @@ function resetFilters(shouldApply = true) {
   $("#statusFilter").value = "";
   state.productTotals = false;
   updateProductTotalsToggle();
-  $("#dateFrom").value = "";
-  $("#dateTo").value = "";
+  if ($("#dateFrom")) $("#dateFrom").value = "";
+  if ($("#dateTo")) $("#dateTo").value = "";
   if (shouldApply) {
     state.page = 1;
     applyFilters();
@@ -1072,8 +1155,8 @@ function applyKpiQuickView(kind) {
   $("#categoryFilter").value = "";
   $("#locationFilter").value = "";
   $("#uomFilter").value = "";
-  $("#dateFrom").value = "";
-  $("#dateTo").value = "";
+  if ($("#dateFrom")) $("#dateFrom").value = "";
+  if ($("#dateTo")) $("#dateTo").value = "";
   $("#statusFilter").value = { low: "Low", negative: "Negative", out: "Out" }[kind] || "";
   state.page = 1;
   applyFilters();
@@ -1196,29 +1279,20 @@ function importSummaryItems() {
 
 function updateCharts() {
   if (!state.rows.length || $("#dashboard").hidden) return;
-  const mainCharts = [
-    "valueCategoryChart",
-    "categoryCountChart",
-    "locationQtyChart",
-    "topProductsChart",
-    "stockStatusChart"
-  ];
-  const extraCharts = [
-    "valueLocationChart",
-    "availableReservedCategoryChart",
-    "skuCategoryChart",
-    "uomChart",
-    "reservedLocationChart",
-    "lowStockProductsChart",
-    "unitValueChart"
-  ];
-  mainCharts.forEach(id => renderChartById(id));
-  if (state.showMoreCharts) extraCharts.forEach(id => renderChartById(id));
+  applyChartVisibility();
+  const chartIds = Array.from(new Set([
+    ...Array.from(DEFAULT_CHART_IDS),
+    ...Array.from(state.selectedCharts).filter(id => OPTIONAL_CHART_IDS.has(id))
+  ]));
+  chartIds.forEach(id => {
+    const card = document.querySelector(`[data-chart-id="${id}"]`);
+    if (!card || card.hidden) return;
+    renderChartById(id);
+  });
   if (state.expandedChartId && !$("#chartModal")?.hidden) {
     renderChartById(state.expandedChartId, $("#expandedChartCanvas"), true);
   }
 }
-
 function chartLimit(canvas, normalLimit, expandedLimit) {
   const rect = canvas?.getBoundingClientRect?.() || { width: 0 };
   if (canvas?.id === "expandedChartCanvas") return expandedLimit;
