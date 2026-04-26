@@ -4,22 +4,33 @@ A fully browser-based inventory dashboard for XLSX / CSV stock files, including 
 
 ## What changed in this version
 
-- Made the dashboard more compact and responsive so it fits the page better at normal browser zoom.
-- Added a **See more charts** button under the main chart area.
-- Added detailed extra charts for value by location, available vs reserved by category, product count by category, unit-of-measure distribution, reserved quantity by location, lowest available products, batch count by category, and unit value by product.
-- Kept **Import file**, **XLSX template**, and **CSV template** inside the **Settings** menu.
-- Kept the import/start card hidden after a successful import so it does not take dashboard space.
-- Kept chart rendering working in both light mode and dark mode.
-- Kept Light/Dark mode and Arabic/English toggles in Settings.
-- Kept compatibility with the exact attached Odoo-style grouped XLSX format.
+- Made every KPI card clickable, including main KPIs and optional KPIs.
+- Clicking a KPI opens its referenced inventory rows in the same searchable/filterable/exportable table.
+- The selected KPI view is highlighted and can be cleared with **Clear view**.
+- Kept the visible **Expand chart** button. Every chart card has a large modal view.
+- Added **Optional KPIs** under **More options** so users can choose extra KPI cards without cluttering the dashboard.
+- Optional KPI cards include:
+  - Visible rows
+  - Total available quantity
+  - Total reserved quantity
+  - Category count
+  - Unit-of-measure count
+  - Batch / serial count
+  - Removal-dated rows
+  - Average unit value
+  - Reserved value
+- Optional KPI selections are saved in browser local storage with the language/theme preferences.
+- Kept negative-stock KPI, clickable stock KPI cards, export, light/dark mode, Arabic/English support, and grouped Odoo import support.
 
 ## How to use
 
 1. Open `index.html` in a modern browser.
 2. Click **Settings**.
 3. Use **Import file** to import the XLSX / CSV inventory file.
-4. Use search, filters, chart clicks, table sorting, and export buttons.
-5. Use **Settings** to switch theme/language or download XLSX/CSV templates.
+4. Use search, filters, chart expansion, table sorting, and export buttons.
+5. Open **More options** to enable extra KPI cards.
+6. Click any KPI card to inspect the rows referenced by that KPI.
+7. Use search, filters, and **Export XLSX** while inside a KPI view to export the currently shown result.
 
 ## Required import headers
 
@@ -45,7 +56,3 @@ Grouped Odoo summary rows are automatically skipped so dashboard totals do not d
 - `README.md`
 
 No backend, database, build step, or external JavaScript library is required.
-
-## v6 fix
-
-- Fixed the import/start card so it disappears completely after a successful import and does not reserve dashboard space.

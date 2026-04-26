@@ -49,6 +49,8 @@ const I18N = {
     kpiProducts: "إجمالي المنتجات",
     kpiOut: "نفاد المخزون",
     kpiOutSub: "كمية متاحة = 0",
+    kpiNegative: "مخزون سالب",
+    kpiNegativeSub: "كمية أقل من 0",
     kpiLow: "مخزون منخفض",
     kpiLowSub: "حسب الحد المحدد",
     kpiOnHand: "إجمالي الكميات",
@@ -57,6 +59,25 @@ const I18N = {
     kpiValueSub: "القيمة الإجمالية",
     kpiLocations: "عدد الفروع",
     kpiLocationsSub: "فرع / موقع مخزن",
+    optionalKpis: "مؤشرات إضافية",
+    kpiRowsOptional: "السجلات المعروضة",
+    kpiRowsOptionalSub: "بعد التصفية",
+    kpiAvailable: "إجمالي المتاح",
+    kpiAvailableSub: "كمية متاحة",
+    kpiReserved: "إجمالي المحجوز",
+    kpiReservedSub: "غير متاح / محجوز",
+    kpiCategories: "عدد الفئات",
+    kpiCategoriesSub: "فئات ضمن العرض",
+    kpiUoms: "وحدات القياس",
+    kpiUomsSub: "أنواع وحدات",
+    kpiBatches: "الدُفعات",
+    kpiBatchesSub: "دفعات / أرقام تسلسل",
+    kpiDated: "بتاريخ إزالة",
+    kpiDatedSub: "صفوف لها تاريخ",
+    kpiAvgUnitValue: "متوسط قيمة الوحدة",
+    kpiAvgUnitValueSub: "القيمة ÷ الكمية",
+    kpiReservedValue: "قيمة المحجوز",
+    kpiReservedValueSub: "قيمة صفوف محجوزة",
     productDetails: "تفاصيل المنتجات",
     rowsPerPage: "عدد الصفوف",
     columns: "الأعمدة",
@@ -69,6 +90,7 @@ const I18N = {
     statusReady: "متاح",
     statusLow: "مخزون منخفض",
     statusOut: "نفاد المخزون",
+    statusNegative: "مخزون سالب",
     statusReserved: "محجوز",
     statusDated: "له تاريخ إزالة",
     lastUpdatedNever: "آخر تحديث: لم يتم الاستيراد بعد",
@@ -88,6 +110,8 @@ const I18N = {
     chartRemovalTimeline: "تاريخ الإزالة حسب الشهر",
     moreCharts: "عرض المزيد من الرسوم",
     lessCharts: "إخفاء الرسوم الإضافية",
+    expandChart: "تكبير الرسم",
+    closeExpanded: "إغلاق",
     chartValueByLocation: "القيمة حسب الموقع",
     chartAvailableReservedByCategory: "المتاح والمحجوز حسب الفئة",
     chartProductsByCategory: "عدد المنتجات حسب الفئة",
@@ -129,6 +153,23 @@ const I18N = {
     colValuePerUnit: "قيمة الوحدة",
     colStatus: "الحالة",
     importedRowsFallback: "0 سجل",
+    quickProducts: "عرض صفوف المنتجات",
+    quickOutStock: "عرض نفاد المخزون",
+    quickTotalStock: "عرض إجمالي الكميات",
+    quickLowStock: "عرض المخزون المنخفض",
+    quickNegativeStock: "عرض المخزون السالب",
+    quickValue: "عرض صفوف القيمة",
+    quickLocations: "عرض صفوف المواقع",
+    quickRows: "عرض السجلات المعروضة",
+    quickAvailable: "عرض الكمية المتاحة",
+    quickReserved: "عرض الكمية المحجوزة",
+    quickCategories: "عرض صفوف الفئات",
+    quickUoms: "عرض وحدات القياس",
+    quickBatches: "عرض الدُفعات / أرقام التسلسل",
+    quickDated: "عرض الصفوف ذات تاريخ الإزالة",
+    quickAvgUnitValue: "عرض صفوف قيمة الوحدة",
+    quickReservedValue: "عرض قيمة المحجوز",
+    clearQuickView: "إلغاء العرض",
     noRowsMatch: "لا توجد صفوف تطابق عوامل التصفية الحالية."
   },
   en: {
@@ -157,6 +198,8 @@ const I18N = {
     kpiProducts: "Total products",
     kpiOut: "Out of stock",
     kpiOutSub: "Available qty = 0",
+    kpiNegative: "Negative stock",
+    kpiNegativeSub: "Quantity below 0",
     kpiLow: "Low stock",
     kpiLowSub: "Based on threshold",
     kpiOnHand: "Total quantity",
@@ -165,6 +208,25 @@ const I18N = {
     kpiValueSub: "Total inventory value",
     kpiLocations: "Locations",
     kpiLocationsSub: "Branch / stock location",
+    optionalKpis: "Optional KPIs",
+    kpiRowsOptional: "Visible rows",
+    kpiRowsOptionalSub: "After filters",
+    kpiAvailable: "Total available",
+    kpiAvailableSub: "Available quantity",
+    kpiReserved: "Total reserved",
+    kpiReservedSub: "Reserved / unavailable",
+    kpiCategories: "Categories",
+    kpiCategoriesSub: "Categories in view",
+    kpiUoms: "Units of measure",
+    kpiUomsSub: "UOM types",
+    kpiBatches: "Batches",
+    kpiBatchesSub: "Batch / serial values",
+    kpiDated: "Removal-dated",
+    kpiDatedSub: "Rows with dates",
+    kpiAvgUnitValue: "Average unit value",
+    kpiAvgUnitValueSub: "Value ÷ quantity",
+    kpiReservedValue: "Reserved value",
+    kpiReservedValueSub: "Value of reserved rows",
     productDetails: "Product details",
     rowsPerPage: "Rows per page",
     columns: "Columns",
@@ -177,6 +239,7 @@ const I18N = {
     statusReady: "Available",
     statusLow: "Low stock",
     statusOut: "Out of stock",
+    statusNegative: "Negative stock",
     statusReserved: "Reserved",
     statusDated: "Has removal date",
     lastUpdatedNever: "Last update: not imported yet",
@@ -196,6 +259,8 @@ const I18N = {
     chartRemovalTimeline: "Removal date by month",
     moreCharts: "See more charts",
     lessCharts: "Show fewer charts",
+    expandChart: "Expand chart",
+    closeExpanded: "Close",
     chartValueByLocation: "Value by location",
     chartAvailableReservedByCategory: "Available and reserved by category",
     chartProductsByCategory: "Product count by category",
@@ -237,6 +302,23 @@ const I18N = {
     colValuePerUnit: "Unit value",
     colStatus: "Status",
     importedRowsFallback: "0 records",
+    quickProducts: "Viewing product rows",
+    quickOutStock: "Viewing out-of-stock rows",
+    quickTotalStock: "Viewing total quantity rows",
+    quickLowStock: "Viewing low stock",
+    quickNegativeStock: "Viewing negative stock",
+    quickValue: "Viewing value rows",
+    quickLocations: "Viewing location rows",
+    quickRows: "Viewing visible rows",
+    quickAvailable: "Viewing available quantity rows",
+    quickReserved: "Viewing reserved quantity rows",
+    quickCategories: "Viewing category rows",
+    quickUoms: "Viewing unit-of-measure rows",
+    quickBatches: "Viewing batch / serial rows",
+    quickDated: "Viewing removal-dated rows",
+    quickAvgUnitValue: "Viewing unit-value rows",
+    quickReservedValue: "Viewing reserved-value rows",
+    clearQuickView: "Clear view",
     noRowsMatch: "No rows match the active filters."
   }
 };
@@ -255,6 +337,37 @@ const DISPLAY_COLUMNS = [
   { key: "valuePerUnit", labelKey: "colValuePerUnit", type: "currency" },
   { key: "status", labelKey: "colStatus", type: "status" }
 ];
+
+const OPTIONAL_KPI_DEFINITIONS = [
+  { key: "rows", labelKey: "kpiRowsOptional" },
+  { key: "available", labelKey: "kpiAvailable" },
+  { key: "reserved", labelKey: "kpiReserved" },
+  { key: "categories", labelKey: "kpiCategories" },
+  { key: "uoms", labelKey: "kpiUoms" },
+  { key: "batches", labelKey: "kpiBatches" },
+  { key: "dated", labelKey: "kpiDated" },
+  { key: "avgUnitValue", labelKey: "kpiAvgUnitValue" },
+  { key: "reservedValue", labelKey: "kpiReservedValue" }
+];
+const OPTIONAL_KPI_KEYS = new Set(OPTIONAL_KPI_DEFINITIONS.map(item => item.key));
+const KPI_VIEW_LABEL_KEYS = {
+  products: "quickProducts",
+  out: "quickOutStock",
+  onHand: "quickTotalStock",
+  low: "quickLowStock",
+  negative: "quickNegativeStock",
+  value: "quickValue",
+  locations: "quickLocations",
+  rows: "quickRows",
+  available: "quickAvailable",
+  reserved: "quickReserved",
+  categories: "quickCategories",
+  uoms: "quickUoms",
+  batches: "quickBatches",
+  dated: "quickDated",
+  avgUnitValue: "quickAvgUnitValue",
+  reservedValue: "quickReservedValue"
+};
 
 const SAMPLE_ROWS = [
   REQUIRED_COLUMNS,
@@ -284,11 +397,14 @@ const state = {
   lastUpdatedAt: null,
   lastUpdatedFileName: "",
   importMeta: { sourceFormat: "No data loaded", headerRow: 0, skippedSummaryRows: 0, importedRows: 0, originalDataRows: 0 },
-  showMoreCharts: false
+  showMoreCharts: false,
+  expandedChartId: null,
+  quickView: null,
+  visibleOptionalKpis: new Set(initialPreferences.optionalKpis || [])
 };
 
 const palette = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#22c55e", "#06b6d4", "#f97316", "#64748b", "#ec4899", "#84cc16", "#0ea5e9"];
-const statusColors = { Ready: "#22c55e", Low: "#f59e0b", Out: "#ef4444", Reserved: "#2563eb", Dated: "#8b5cf6" };
+const statusColors = { Ready: "#22c55e", Low: "#f59e0b", Negative: "#e11d48", Out: "#ef4444", Reserved: "#2563eb", Dated: "#8b5cf6" };
 let messageTimeoutId = null;
 const $ = selector => document.querySelector(selector);
 const $$ = selector => Array.from(document.querySelectorAll(selector));
@@ -299,7 +415,9 @@ window.addEventListener("DOMContentLoaded", () => {
   applyStoredSettings();
   renderRequiredColumns();
   renderColumnToggles();
+  renderOptionalKpiToggles();
   bindEvents();
+  setupChartExpandButtons();
   renderTable();
   updateLastUpdated();
   window.addEventListener("resize", debounce(updateCharts, 160));
@@ -313,6 +431,8 @@ function bindEvents() {
   $("#langArBtn")?.addEventListener("click", () => setLanguage("ar"));
   $("#langEnBtn")?.addEventListener("click", () => setLanguage("en"));
   document.addEventListener("click", closeSettingsWhenClickingOutside);
+  window.addEventListener("resize", debounce(positionSettingsPanel, 80));
+  window.addEventListener("scroll", debounce(positionSettingsPanel, 80), true);
   $("#fileInput").addEventListener("change", event => handleFileImport(event.target.files[0]));
   $("#templateXlsxBtn").addEventListener("click", () => downloadXlsx("inventory_import_template.xlsx", SAMPLE_ROWS));
   $("#templateCsvBtn").addEventListener("click", () => downloadCsv("inventory_import_template.csv", SAMPLE_ROWS));
@@ -324,6 +444,8 @@ function bindEvents() {
   $("#dateFrom").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#dateTo").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#lowStockThreshold").addEventListener("input", () => { state.lowStockThreshold = Math.max(0, parseNumber($("#lowStockThreshold").value)); updateStatuses(); applyFilters(); });
+  bindKpiQuickViews();
+  $("#clearQuickViewBtn")?.addEventListener("click", clearStockQuickView);
   $("#resetFiltersBtn").addEventListener("click", resetFilters);
   $("#clearBtn").addEventListener("click", clearData);
   $("#exportCsvBtn").addEventListener("click", () => exportFiltered("csv"));
@@ -332,6 +454,9 @@ function bindEvents() {
   $("#prevPageBtn").addEventListener("click", () => { state.page = Math.max(1, state.page - 1); renderTable(); });
   $("#nextPageBtn").addEventListener("click", () => { const pages = getPageCount(); state.page = Math.min(pages, state.page + 1); renderTable(); });
   $("#toggleChartsBtn")?.addEventListener("click", toggleMoreCharts);
+  $("#chartModalClose")?.addEventListener("click", closeExpandedChart);
+  $("#chartModal")?.addEventListener("click", event => { if (event.target.id === "chartModal") closeExpandedChart(); });
+  document.addEventListener("keydown", event => { if (event.key === "Escape" && !$("#chartModal")?.hidden) closeExpandedChart(); });
 }
 
 function loadPreferences() {
@@ -339,16 +464,17 @@ function loadPreferences() {
     const parsed = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
     return {
       language: parsed.language === "en" ? "en" : "ar",
-      theme: parsed.theme === "dark" ? "dark" : "light"
+      theme: parsed.theme === "dark" ? "dark" : "light",
+      optionalKpis: Array.isArray(parsed.optionalKpis) ? parsed.optionalKpis.filter(key => OPTIONAL_KPI_KEYS.has(key)) : []
     };
   } catch {
-    return { language: "ar", theme: "light" };
+    return { language: "ar", theme: "light", optionalKpis: [] };
   }
 }
 
 function savePreferences() {
   try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ language: state.language, theme: state.theme }));
+    localStorage.setItem(PREFS_KEY, JSON.stringify({ language: state.language, theme: state.theme, optionalKpis: Array.from(state.visibleOptionalKpis) }));
   } catch {
     /* Local storage can be unavailable in hardened browser modes. */
   }
@@ -395,11 +521,15 @@ function setLanguage(language, persist = true) {
   document.querySelectorAll("[data-i18n]").forEach(element => element.textContent = t(element.dataset.i18n));
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
   updateSettingsUi();
+  requestAnimationFrame(positionSettingsPanel);
   updateMoreChartsUi();
+  updateChartExpandLabels();
   updateFilterOptions();
   renderColumnToggles();
+  renderOptionalKpiToggles();
   renderKpis();
   renderTable();
+  renderQuickViewBar();
   updateLastUpdated();
   updateCharts();
   if (persist) savePreferences();
@@ -423,10 +553,101 @@ function updateMoreChartsUi() {
   }
 }
 
+function renderOptionalKpiToggles() {
+  const container = $("#optionalKpiToggles");
+  if (!container) return;
+  container.innerHTML = OPTIONAL_KPI_DEFINITIONS.map(item => {
+    const checked = state.visibleOptionalKpis.has(item.key) ? "checked" : "";
+    return `<label class="optional-kpi-toggle"><input type="checkbox" value="${escapeHtml(item.key)}" ${checked}><span>${escapeHtml(t(item.labelKey))}</span></label>`;
+  }).join("");
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    input.addEventListener("change", event => {
+      const key = event.currentTarget.value;
+      if (event.currentTarget.checked) state.visibleOptionalKpis.add(key);
+      else state.visibleOptionalKpis.delete(key);
+      updateOptionalKpiCards();
+      savePreferences();
+    });
+  });
+  updateOptionalKpiCards();
+}
+
+function updateOptionalKpiCards() {
+  $$(".optional-kpi[data-kpi-card]").forEach(card => {
+    card.hidden = !state.visibleOptionalKpis.has(card.dataset.kpiCard);
+  });
+}
 function toggleMoreCharts() {
   state.showMoreCharts = !state.showMoreCharts;
   updateMoreChartsUi();
   requestAnimationFrame(() => updateCharts());
+}
+
+function setupChartExpandButtons() {
+  $$(".chart-card").forEach(card => {
+    const canvas = card.querySelector("canvas");
+    if (!canvas || card.querySelector(".chart-expand-btn")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "chart-expand-btn";
+    button.innerHTML = `<span aria-hidden="true">⛶</span><span class="expand-label">${escapeHtml(t("expandChart"))}</span>`;
+    button.addEventListener("click", event => {
+      event.stopPropagation();
+      openExpandedChart(canvas.id);
+    });
+    card.appendChild(button);
+  });
+  updateChartExpandLabels();
+}
+
+function updateChartExpandLabels() {
+  $$(".chart-expand-btn").forEach(button => {
+    button.title = t("expandChart");
+    button.setAttribute("aria-label", t("expandChart"));
+    button.innerHTML = `<span aria-hidden="true">⛶</span><span class="expand-label">${escapeHtml(t("expandChart"))}</span>`;
+  });
+  const closeButton = $("#chartModalClose");
+  if (closeButton) closeButton.textContent = t("closeExpanded");
+}
+
+function openExpandedChart(chartId) {
+  const modal = $("#chartModal");
+  const canvas = $("#expandedChartCanvas");
+  if (!modal || !canvas) return;
+  state.expandedChartId = chartId;
+  $("#chartModalTitle").textContent = chartTitleForId(chartId);
+  modal.hidden = false;
+  document.body.classList.add("modal-open");
+  requestAnimationFrame(() => renderChartById(chartId, canvas, true));
+}
+
+function closeExpandedChart() {
+  const modal = $("#chartModal");
+  if (!modal) return;
+  modal.hidden = true;
+  state.expandedChartId = null;
+  document.body.classList.remove("modal-open");
+  hideTooltip();
+}
+
+function chartTitleForId(chartId) {
+  const map = {
+    valueCategoryChart: "chartValueByCategory",
+    categoryCountChart: "chartQtyByCategory",
+    locationQtyChart: "chartQtyByLocation",
+    topProductsChart: "chartTopProducts",
+    stockStatusChart: "chartStockStatus",
+    removalTimelineChart: "chartRemovalTimeline",
+    valueLocationChart: "chartValueByLocation",
+    availableReservedCategoryChart: "chartAvailableReservedByCategory",
+    skuCategoryChart: "chartProductsByCategory",
+    uomChart: "chartUomDistribution",
+    reservedLocationChart: "chartReservedByLocation",
+    lowStockProductsChart: "chartLowStockProducts",
+    batchCategoryChart: "chartBatchCountByCategory",
+    unitValueChart: "chartUnitValueProducts"
+  };
+  return t(map[chartId] || "appTitle");
 }
 
 function toggleSettingsPanel(event) {
@@ -435,6 +656,22 @@ function toggleSettingsPanel(event) {
   if (!panel) return;
   panel.hidden = !panel.hidden;
   updateSettingsUi();
+  if (!panel.hidden) requestAnimationFrame(positionSettingsPanel);
+}
+
+function positionSettingsPanel() {
+  const panel = $("#settingsPanel");
+  const button = $("#settingsBtn");
+  if (!panel || !button || panel.hidden) return;
+  panel.style.left = "auto";
+  panel.style.right = "auto";
+  const panelWidth = Math.min(360, Math.max(280, window.innerWidth - 24));
+  panel.style.width = panelWidth + "px";
+  const rect = button.getBoundingClientRect();
+  let left = rect.right - panelWidth;
+  left = Math.max(12, Math.min(left, window.innerWidth - panelWidth - 12));
+  panel.style.left = left + "px";
+  panel.style.top = Math.min(rect.bottom + 8, window.innerHeight - 20) + "px";
 }
 
 function closeSettingsWhenClickingOutside(event) {
@@ -673,6 +910,7 @@ function updateStatuses() {
 }
 
 function getStatus(row) {
+  if (row.onHand < 0 || row.available < 0) return "Negative";
   if (row.onHand <= 0 || row.available <= 0) return "Out";
   if (row.reserved > 0) return "Reserved";
   if (row.available <= state.lowStockThreshold) return "Low";
@@ -686,7 +924,9 @@ function updateFilterOptions() {
   fillSelect("#locationFilter", t("allLocations"), uniqueValues(state.rows, "location"));
   fillSelect("#uomFilter", t("allUoms"), uniqueValues(state.rows, "uom"));
   const status = $("#statusFilter");
-  status.innerHTML = `<option value="">${escapeHtml(t("allStatuses"))}</option><option value="Ready">${escapeHtml(statusLabel("Ready"))}</option><option value="Low">${escapeHtml(statusLabel("Low"))}</option><option value="Reserved">${escapeHtml(statusLabel("Reserved"))}</option><option value="Out">${escapeHtml(statusLabel("Out"))}</option><option value="Dated">${escapeHtml(statusLabel("Dated"))}</option>`;
+  const current = status.value;
+  status.innerHTML = `<option value="">${escapeHtml(t("allStatuses"))}</option><option value="Ready">${escapeHtml(statusLabel("Ready"))}</option><option value="Low">${escapeHtml(statusLabel("Low"))}</option><option value="Negative">${escapeHtml(statusLabel("Negative"))}</option><option value="Reserved">${escapeHtml(statusLabel("Reserved"))}</option><option value="Out">${escapeHtml(statusLabel("Out"))}</option><option value="Dated">${escapeHtml(statusLabel("Dated"))}</option>`;
+  if ([...status.options].some(option => option.value === current)) status.value = current;
 }
 
 function fillSelect(selector, placeholder, values) {
@@ -708,6 +948,7 @@ function applyFilters() {
     if (location && row.location !== location) return false;
     if (uom && row.uom !== uom) return false;
     if (status && row.status !== status) return false;
+    if (state.quickView && !rowMatchesKpiView(row, state.quickView)) return false;
     if (dateFrom && (!row.removalDate || row.removalDate < dateFrom)) return false;
     if (dateTo && (!row.removalDate || row.removalDate > dateTo)) return false;
     return true;
@@ -717,9 +958,11 @@ function applyFilters() {
   renderInsights();
   updateCharts();
   renderTable();
+  renderQuickViewBar();
 }
 
 function resetFilters(shouldApply = true) {
+  state.quickView = null;
   $("#searchInput").value = "";
   $("#categoryFilter").value = "";
   $("#locationFilter").value = "";
@@ -744,11 +987,86 @@ function clearData() {
   state.lastUpdatedAt = null;
   state.lastUpdatedFileName = "";
   state.showMoreCharts = false;
+  state.quickView = null;
   updateMoreChartsUi();
+  renderQuickViewBar();
   $("#dashboard").hidden = true;
   $("#emptyState").hidden = false;
   updateLastUpdated();
   clearMessage();
+}
+
+function bindKpiQuickViews() {
+  $$('[data-kpi-view]').forEach(element => {
+    const kind = element.dataset.kpiView;
+    element.addEventListener("click", () => applyKpiQuickView(kind));
+    element.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        applyKpiQuickView(kind);
+      }
+    });
+  });
+}
+
+function applyKpiQuickView(kind) {
+  if (!state.rows.length || !kind) return;
+  state.quickView = kind;
+  $("#searchInput").value = "";
+  $("#categoryFilter").value = "";
+  $("#locationFilter").value = "";
+  $("#uomFilter").value = "";
+  $("#dateFrom").value = "";
+  $("#dateTo").value = "";
+  $("#statusFilter").value = { low: "Low", negative: "Negative", out: "Out" }[kind] || "";
+  state.page = 1;
+  applyFilters();
+  document.querySelector(".table-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function clearStockQuickView() {
+  if (!state.quickView) return;
+  const statusForView = { low: "Low", negative: "Negative", out: "Out" }[state.quickView];
+  state.quickView = null;
+  if (statusForView && $("#statusFilter").value === statusForView) $("#statusFilter").value = "";
+  state.page = 1;
+  applyFilters();
+}
+
+function rowMatchesKpiView(row, kind) {
+  switch (kind) {
+    case "products": return Boolean(row.product);
+    case "out": return row.status === "Out";
+    case "negative": return row.status === "Negative";
+    case "low": return row.status === "Low";
+    case "onHand": return Number(row.onHand) !== 0;
+    case "value": return Number(row.value) !== 0;
+    case "locations": return Boolean(row.location);
+    case "rows": return true;
+    case "available": return Number(row.available) !== 0;
+    case "reserved": return Number(row.reserved) > 0;
+    case "categories": return Boolean(row.category);
+    case "uoms": return Boolean(row.uom);
+    case "batches": return Boolean(String(row.lot || "").trim());
+    case "dated": return Boolean(row.removalDate);
+    case "avgUnitValue": return Number(row.value) !== 0 && Math.max(Math.abs(Number(row.onHand) || 0), Math.abs(Number(row.available) || 0)) > 0;
+    case "reservedValue": return Number(row.reserved) > 0 && Number(row.value) !== 0;
+    default: return true;
+  }
+}
+
+function renderQuickViewBar() {
+  const bar = $("#quickViewBar");
+  const label = $("#quickViewLabel");
+  $$('[data-kpi-view]').forEach(card => card.classList.toggle("active-kpi", Boolean(state.quickView && card.dataset.kpiView === state.quickView)));
+  if (!bar || !label) return;
+  if (!state.quickView) {
+    bar.hidden = true;
+    return;
+  }
+  const key = KPI_VIEW_LABEL_KEYS[state.quickView] || "quickRows";
+  label.textContent = `${t(key)} • ${t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.rows.length) })}`;
+  bar.hidden = false;
 }
 
 function renderKpis() {
@@ -758,19 +1076,41 @@ function renderKpis() {
   const totalReserved = sum(rows, "reserved");
   const totalValue = sum(rows, "value");
   const outCount = rows.filter(row => row.status === "Out").length;
+  const negativeCount = rows.filter(row => row.status === "Negative").length;
   const lowCount = rows.filter(row => row.status === "Low").length;
-  $("#kpiRows").textContent = numberFormatter.format(rows.length);
-  $("#kpiRowsSub").textContent = t("rowsShown", { shown: numberFormatter.format(rows.length), total: numberFormatter.format(state.rows.length) });
-  $("#kpiProducts").textContent = numberFormatter.format(new Set(rows.map(row => row.product)).size);
-  $("#kpiOnHand").textContent = numberFormatter.format(totalOnHand);
-  $("#kpiAvailable").textContent = numberFormatter.format(totalAvailable);
-  $("#kpiReserved").textContent = numberFormatter.format(totalReserved);
-  $("#kpiValue").textContent = currencyFormatter.format(totalValue);
-  $("#kpiOut").textContent = numberFormatter.format(outCount);
-  $("#kpiLow").textContent = numberFormatter.format(lowCount);
-  $("#kpiLocations").textContent = numberFormatter.format(new Set(rows.map(row => row.location)).size);
+  const categoriesCount = new Set(rows.map(row => row.category).filter(Boolean)).size;
+  const locationsCount = new Set(rows.map(row => row.location).filter(Boolean)).size;
+  const uomCount = new Set(rows.map(row => row.uom).filter(Boolean)).size;
+  const batchCount = new Set(rows.map(row => row.lot).filter(Boolean)).size;
+  const datedCount = rows.filter(row => row.removalDate).length;
+  const valueBaseQty = rows.reduce((total, row) => total + Math.max(Math.abs(row.onHand), Math.abs(row.available), 0), 0);
+  const avgUnitValue = valueBaseQty ? totalValue / valueBaseQty : 0;
+  const reservedValue = sum(rows.filter(row => row.reserved > 0), "value");
+
+  setText("#kpiRows", numberFormatter.format(rows.length));
+  setText("#kpiRowsSub", t("rowsShown", { shown: numberFormatter.format(rows.length), total: numberFormatter.format(state.rows.length) }));
+  setText("#kpiProducts", numberFormatter.format(new Set(rows.map(row => row.product)).size));
+  setText("#kpiOnHand", numberFormatter.format(totalOnHand));
+  setText("#kpiAvailable", numberFormatter.format(totalAvailable));
+  setText("#kpiReserved", numberFormatter.format(totalReserved));
+  setText("#kpiValue", currencyFormatter.format(totalValue));
+  setText("#kpiOut", numberFormatter.format(outCount));
+  setText("#kpiNegative", numberFormatter.format(negativeCount));
+  setText("#kpiLow", numberFormatter.format(lowCount));
+  setText("#kpiLocations", numberFormatter.format(locationsCount));
+  setText("#kpiCategories", numberFormatter.format(categoriesCount));
+  setText("#kpiUoms", numberFormatter.format(uomCount));
+  setText("#kpiBatches", numberFormatter.format(batchCount));
+  setText("#kpiDated", numberFormatter.format(datedCount));
+  setText("#kpiAvgUnitValue", currencyFormatter.format(avgUnitValue));
+  setText("#kpiReservedValue", currencyFormatter.format(reservedValue));
+  updateOptionalKpiCards();
 }
 
+function setText(selector, value) {
+  const element = $(selector);
+  if (element) element.textContent = value;
+}
 function renderInsights() {
   if (!$("#dataSummary") || !$("#qualityList")) return;
   const rows = state.filteredRows;
@@ -800,91 +1140,141 @@ function importSummaryItems() {
 
 function updateCharts() {
   if (!state.rows.length || $("#dashboard").hidden) return;
-  const rows = state.filteredRows;
-  drawVerticalBarChart($("#valueCategoryChart"), topEntries(groupSum(rows, "category", "value"), 10), {
-    title: t("chartValueByCategory"),
-    valueFormatter: currencyFormatter.format.bind(currencyFormatter),
-    emptyText: t("emptyValueCategory"),
-    onClick: label => setFilter("#categoryFilter", label)
-  });
-  drawDoughnutChart($("#categoryCountChart"), topEntries(groupSum(rows, "category", "onHand"), 8), {
-    title: t("chartQtyByCategory"),
-    emptyText: t("emptyQtyCategory"),
-    valueSuffix: t("unitSuffix"),
-    onClick: label => setFilter("#categoryFilter", label)
-  });
-  drawGroupedBarChart($("#locationQtyChart"), topEntries(groupDualSum(rows, "location", "onHand", "available"), 8), {
-    title: t("chartQtyByLocation"),
-    firstLabel: t("existingQty"),
-    secondLabel: t("availableQty"),
-    emptyText: t("emptyLocations"),
-    onClick: label => setFilter("#locationFilter", label)
-  });
-  drawHorizontalBarChart($("#topProductsChart"), topEntries(groupSum(rows, "product", "value"), 10), {
-    title: t("chartTopProducts"),
-    valueFormatter: currencyFormatter.format.bind(currencyFormatter),
-    emptyText: t("emptyProducts"),
-    onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
-  });
-  drawDoughnutChart($("#stockStatusChart"), statusBreakdown(rows), {
-    title: t("chartStockStatus"),
-    emptyText: t("emptyStatus"),
-    onClick: label => setFilter("#statusFilter", label)
-  });
-  drawLineChart($("#removalTimelineChart"), removalTimeline(rows), {
-    title: t("chartRemovalTimeline"),
-    emptyText: t("emptyTimeline")
-  });
+  const mainCharts = [
+    "valueCategoryChart",
+    "categoryCountChart",
+    "locationQtyChart",
+    "topProductsChart",
+    "stockStatusChart",
+    "removalTimelineChart"
+  ];
+  const extraCharts = [
+    "valueLocationChart",
+    "availableReservedCategoryChart",
+    "skuCategoryChart",
+    "uomChart",
+    "reservedLocationChart",
+    "lowStockProductsChart",
+    "batchCategoryChart",
+    "unitValueChart"
+  ];
+  mainCharts.forEach(id => renderChartById(id));
+  if (state.showMoreCharts) extraCharts.forEach(id => renderChartById(id));
+  if (state.expandedChartId && !$("#chartModal")?.hidden) {
+    renderChartById(state.expandedChartId, $("#expandedChartCanvas"), true);
+  }
+}
 
-  if (state.showMoreCharts) {
-    drawVerticalBarChart($("#valueLocationChart"), topEntries(groupSum(rows, "location", "value"), 12), {
-      title: t("chartValueByLocation"),
-      valueFormatter: currencyFormatter.format.bind(currencyFormatter),
-      emptyText: t("emptyValueLocation"),
-      onClick: label => setFilter("#locationFilter", label)
-    });
-    drawGroupedBarChart($("#availableReservedCategoryChart"), topEntries(groupDualSum(rows, "category", "available", "reserved"), 10), {
-      title: t("chartAvailableReservedByCategory"),
-      firstLabel: t("availableQty"),
-      secondLabel: t("reservedQty"),
-      emptyText: t("emptyAvailableReservedCategory"),
-      onClick: label => setFilter("#categoryFilter", label)
-    });
-    drawVerticalBarChart($("#skuCategoryChart"), topEntries(groupUniqueCount(rows, "category", "product"), 12), {
-      title: t("chartProductsByCategory"),
-      valueFormatter: value => `${numberFormatter.format(value)} ${t("productCount")}`,
-      emptyText: t("emptyProductsCategory"),
-      onClick: label => setFilter("#categoryFilter", label)
-    });
-    drawDoughnutChart($("#uomChart"), topEntries(groupSum(rows, "uom", "onHand"), 8), {
-      title: t("chartUomDistribution"),
-      emptyText: t("emptyUom"),
-      valueSuffix: t("unitSuffix"),
-      onClick: label => setFilter("#uomFilter", label)
-    });
-    drawHorizontalBarChart($("#reservedLocationChart"), topEntries(groupPositiveSum(rows, "location", "reserved"), 10), {
-      title: t("chartReservedByLocation"),
-      emptyText: t("emptyReservedLocation"),
-      onClick: label => setFilter("#locationFilter", label)
-    });
-    drawHorizontalBarChart($("#lowStockProductsChart"), lowestAvailableProducts(rows, 10), {
-      title: t("chartLowStockProducts"),
-      emptyText: t("emptyLowStockProducts"),
-      valueFormatter: value => `${numberFormatter.format(value)}${t("unitSuffix")}`,
-      onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
-    });
-    drawVerticalBarChart($("#batchCategoryChart"), topEntries(groupLotCount(rows, "category"), 12), {
-      title: t("chartBatchCountByCategory"),
-      valueFormatter: value => `${numberFormatter.format(value)} ${t("batchCount")}`,
-      emptyText: t("emptyBatchCategory"),
-      onClick: label => setFilter("#categoryFilter", label)
-    });
-    drawHorizontalBarChart($("#unitValueChart"), topUnitValueProducts(rows, 10), {
-      title: t("chartUnitValueProducts"),
-      valueFormatter: currencyFormatter.format.bind(currencyFormatter),
-      emptyText: t("emptyUnitValueProducts"),
-      onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
-    });
+function chartLimit(canvas, normalLimit, expandedLimit) {
+  const rect = canvas?.getBoundingClientRect?.() || { width: 0 };
+  if (canvas?.id === "expandedChartCanvas") return expandedLimit;
+  if (rect.width < 520) return Math.max(4, normalLimit - 2);
+  return normalLimit;
+}
+
+function renderChartById(chartId, targetCanvas = null, expanded = false) {
+  const canvas = targetCanvas || $("#" + chartId);
+  if (!canvas) return;
+  const rows = state.filteredRows;
+  const id = chartId;
+  const top = (group, normal, large) => topEntries(group, expanded ? large : chartLimit(canvas, normal, large));
+  switch (id) {
+    case "valueCategoryChart":
+      return drawVerticalBarChart(canvas, top(groupSum(rows, "category", "value"), 8, 16), {
+        title: t("chartValueByCategory"),
+        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        emptyText: t("emptyValueCategory"),
+        onClick: label => setFilter("#categoryFilter", label)
+      });
+    case "categoryCountChart":
+      return drawDoughnutChart(canvas, top(groupSum(rows, "category", "onHand"), 6, 12), {
+        title: t("chartQtyByCategory"),
+        emptyText: t("emptyQtyCategory"),
+        valueSuffix: t("unitSuffix"),
+        onClick: label => setFilter("#categoryFilter", label)
+      });
+    case "locationQtyChart":
+      return drawGroupedBarChart(canvas, top(groupDualSum(rows, "location", "onHand", "available"), 7, 16), {
+        title: t("chartQtyByLocation"),
+        firstLabel: t("existingQty"),
+        secondLabel: t("availableQty"),
+        emptyText: t("emptyLocations"),
+        onClick: label => setFilter("#locationFilter", label)
+      });
+    case "topProductsChart":
+      return drawHorizontalBarChart(canvas, top(groupSum(rows, "product", "value"), 8, 18), {
+        title: t("chartTopProducts"),
+        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        emptyText: t("emptyProducts"),
+        onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+      });
+    case "stockStatusChart":
+      return drawDoughnutChart(canvas, statusBreakdown(rows), {
+        title: t("chartStockStatus"),
+        emptyText: t("emptyStatus"),
+        onClick: label => setFilter("#statusFilter", label)
+      });
+    case "removalTimelineChart":
+      return drawLineChart(canvas, topEntries(removalTimeline(rows), expanded ? 24 : 12), {
+        title: t("chartRemovalTimeline"),
+        emptyText: t("emptyTimeline")
+      });
+    case "valueLocationChart":
+      return drawVerticalBarChart(canvas, top(groupSum(rows, "location", "value"), 8, 18), {
+        title: t("chartValueByLocation"),
+        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        emptyText: t("emptyValueLocation"),
+        onClick: label => setFilter("#locationFilter", label)
+      });
+    case "availableReservedCategoryChart":
+      return drawGroupedBarChart(canvas, top(groupDualSum(rows, "category", "available", "reserved"), 8, 16), {
+        title: t("chartAvailableReservedByCategory"),
+        firstLabel: t("availableQty"),
+        secondLabel: t("reservedQty"),
+        emptyText: t("emptyAvailableReservedCategory"),
+        onClick: label => setFilter("#categoryFilter", label)
+      });
+    case "skuCategoryChart":
+      return drawVerticalBarChart(canvas, top(groupUniqueCount(rows, "category", "product"), 8, 18), {
+        title: t("chartProductsByCategory"),
+        valueFormatter: value => numberFormatter.format(value) + " " + t("productCount"),
+        emptyText: t("emptyProductsCategory"),
+        onClick: label => setFilter("#categoryFilter", label)
+      });
+    case "uomChart":
+      return drawDoughnutChart(canvas, top(groupSum(rows, "uom", "onHand"), 6, 12), {
+        title: t("chartUomDistribution"),
+        emptyText: t("emptyUom"),
+        valueSuffix: t("unitSuffix"),
+        onClick: label => setFilter("#uomFilter", label)
+      });
+    case "reservedLocationChart":
+      return drawHorizontalBarChart(canvas, top(groupPositiveSum(rows, "location", "reserved"), 8, 18), {
+        title: t("chartReservedByLocation"),
+        emptyText: t("emptyReservedLocation"),
+        onClick: label => setFilter("#locationFilter", label)
+      });
+    case "lowStockProductsChart":
+      return drawHorizontalBarChart(canvas, lowestAvailableProducts(rows, expanded ? 18 : 8), {
+        title: t("chartLowStockProducts"),
+        emptyText: t("emptyLowStockProducts"),
+        valueFormatter: value => numberFormatter.format(value) + t("unitSuffix"),
+        onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+      });
+    case "batchCategoryChart":
+      return drawVerticalBarChart(canvas, top(groupLotCount(rows, "category"), 8, 18), {
+        title: t("chartBatchCountByCategory"),
+        valueFormatter: value => numberFormatter.format(value) + " " + t("batchCount"),
+        emptyText: t("emptyBatchCategory"),
+        onClick: label => setFilter("#categoryFilter", label)
+      });
+    case "unitValueChart":
+      return drawHorizontalBarChart(canvas, topUnitValueProducts(rows, expanded ? 18 : 8), {
+        title: t("chartUnitValueProducts"),
+        valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+        emptyText: t("emptyUnitValueProducts"),
+        onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+      });
   }
 }
 
@@ -955,7 +1345,7 @@ function columnLabel(column) {
 }
 
 function statusLabel(status) {
-  return { Ready: t("statusReady"), Low: t("statusLow"), Out: t("statusOut"), Reserved: t("statusReserved"), Dated: t("statusDated") }[status] || status;
+  return { Ready: t("statusReady"), Low: t("statusLow"), Negative: t("statusNegative"), Out: t("statusOut"), Reserved: t("statusReserved"), Dated: t("statusDated") }[status] || status;
 }
 
 function groupSum(rows, key, valueKey) {
@@ -1049,7 +1439,7 @@ function topEntries(group, limit) {
 
 function statusBreakdown(rows) {
   const counts = groupCount(rows, "status");
-  return ["Ready", "Low", "Reserved", "Out", "Dated"].map(label => ({ label, value: counts.get(label) || 0, color: statusColors[label] })).filter(item => item.value > 0);
+  return ["Ready", "Low", "Negative", "Reserved", "Out", "Dated"].map(label => ({ label, value: counts.get(label) || 0, color: statusColors[label] })).filter(item => item.value > 0);
 }
 
 function removalTimeline(rows) {
@@ -1131,10 +1521,12 @@ function drawVerticalBarChart(canvas, data, options) {
   const { ctx, width, height } = prepareCanvas(canvas);
   drawTitle(ctx, options.title, width);
   if (!data.length) return drawEmpty(ctx, options.emptyText, width, height);
-  const margin = { top: 54, right: 18, bottom: 72, left: 64 };
-  const chartWidth = width - margin.left - margin.right;
-  const chartHeight = height - margin.top - margin.bottom;
+  const formatValue = value => options.valueFormatter ? options.valueFormatter(value) : numberFormatter.format(value);
   const max = Math.max(...data.map(item => item.value), 1);
+  const leftSpace = Math.min(106, Math.max(58, String(formatValue(max)).length * 6 + 18));
+  const margin = { top: 56, right: 20, bottom: canvas.id === "expandedChartCanvas" ? 86 : 68, left: leftSpace };
+  const chartWidth = Math.max(120, width - margin.left - margin.right);
+  const chartHeight = Math.max(80, height - margin.top - margin.bottom);
   ctx.strokeStyle = chartLineColor();
   ctx.fillStyle = chartMutedColor();
   ctx.font = "11px Tahoma, Segoe UI, sans-serif";
@@ -1145,11 +1537,12 @@ function drawVerticalBarChart(canvas, data, options) {
     ctx.moveTo(margin.left, y);
     ctx.lineTo(margin.left + chartWidth, y);
     ctx.stroke();
-    const tick = options.valueFormatter ? options.valueFormatter(max * i / 4) : numberFormatter.format(max * i / 4);
-    ctx.fillText(tick, margin.left - 8, y + 4);
+    ctx.fillText(formatValue(max * i / 4), margin.left - 8, y + 4);
   }
   const slot = chartWidth / data.length;
-  const barWidth = Math.max(16, Math.min(70, slot * 0.62));
+  const barWidth = Math.max(14, Math.min(64, slot * 0.58));
+  const maxLabels = Math.max(3, Math.floor(chartWidth / 76));
+  const labelSkip = Math.max(1, Math.ceil(data.length / maxLabels));
   data.forEach((item, index) => {
     const x = margin.left + index * slot + (slot - barWidth) / 2;
     const barHeight = Math.max(2, chartHeight * item.value / max);
@@ -1157,29 +1550,33 @@ function drawVerticalBarChart(canvas, data, options) {
     ctx.fillStyle = palette[index % palette.length];
     roundRect(ctx, x, y, barWidth, barHeight, 7);
     ctx.fill();
-    ctx.save();
-    ctx.translate(x + barWidth / 2, height - 26);
-    ctx.rotate(-Math.PI / 7);
-    ctx.fillStyle = chartMutedColor();
-    ctx.textAlign = "right";
-    ctx.font = "11px Tahoma, Segoe UI, sans-serif";
-    ctx.fillText(truncate(item.label, 18), 0, 0);
-    ctx.restore();
-    const val = options.valueFormatter ? options.valueFormatter(item.value) : numberFormatter.format(item.value);
+    if (index % labelSkip === 0 || index === data.length - 1) {
+      ctx.save();
+      ctx.translate(x + barWidth / 2, height - 28);
+      ctx.rotate(-Math.PI / 7);
+      ctx.fillStyle = chartMutedColor();
+      ctx.textAlign = "right";
+      ctx.font = "11px Tahoma, Segoe UI, sans-serif";
+      ctx.fillText(truncate(item.label, canvas.id === "expandedChartCanvas" ? 26 : 16), 0, 0);
+      ctx.restore();
+    }
+    const val = formatValue(item.value);
     canvas._hitboxes.push({ x, y, w: barWidth, h: barHeight, label: item.label, value: item.value, text: item.label + ": " + val, onClick: options.onClick });
   });
   ctx.textAlign = "left";
 }
+
 function drawHorizontalBarChart(canvas, data, options) {
   const { ctx, width, height } = prepareCanvas(canvas);
   drawTitle(ctx, options.title, width);
   if (!data.length) return drawEmpty(ctx, options.emptyText, width, height);
-  const margin = { top: 52, right: 28, bottom: 24, left: Math.min(190, Math.max(118, width * 0.34)) };
-  const chartWidth = width - margin.left - margin.right;
-  const chartHeight = height - margin.top - margin.bottom;
+  const margin = { top: 52, right: 34, bottom: 24, left: Math.min(220, Math.max(124, width * 0.33)) };
+  const chartWidth = Math.max(140, width - margin.left - margin.right);
+  const chartHeight = Math.max(80, height - margin.top - margin.bottom);
   const barGap = 8;
-  const barHeight = Math.max(13, (chartHeight - barGap * (data.length - 1)) / data.length);
+  const barHeight = Math.max(10, Math.min(22, (chartHeight - barGap * (data.length - 1)) / data.length));
   const max = Math.max(...data.map(item => item.value), 1);
+  const formatValue = value => options.valueFormatter ? options.valueFormatter(value) : numberFormatter.format(value);
   ctx.strokeStyle = chartLineColor();
   ctx.fillStyle = chartMutedColor();
   ctx.font = "12px Tahoma, Segoe UI, sans-serif";
@@ -1196,16 +1593,27 @@ function drawHorizontalBarChart(canvas, data, options) {
     const color = palette[index % palette.length];
     ctx.fillStyle = chartTextColor();
     ctx.textAlign = "right";
-    ctx.fillText(truncate(item.label, 24), margin.left - 10, y + barHeight * 0.68);
+    ctx.font = "12px Tahoma, Segoe UI, sans-serif";
+    ctx.fillText(truncate(item.label, canvas.id === "expandedChartCanvas" ? 34 : 22), margin.left - 10, y + barHeight * 0.68);
     ctx.textAlign = "left";
     ctx.fillStyle = color;
     roundRect(ctx, margin.left, y, barWidth, barHeight, 7);
     ctx.fill();
+    const label = formatValue(item.value);
     ctx.fillStyle = chartTextColor();
     ctx.font = "700 11px Tahoma, Segoe UI, sans-serif";
-    ctx.fillText(options.valueFormatter ? options.valueFormatter(item.value) : numberFormatter.format(item.value), margin.left + barWidth + 7, y + barHeight * 0.68);
+    const labelWidth = ctx.measureText(label).width;
+    if (margin.left + barWidth + labelWidth + 12 < width) {
+      ctx.textAlign = "left";
+      ctx.fillText(label, margin.left + barWidth + 7, y + barHeight * 0.68);
+    } else if (barWidth > labelWidth + 16) {
+      ctx.textAlign = "right";
+      ctx.fillStyle = "#fff";
+      ctx.fillText(label, margin.left + barWidth - 7, y + barHeight * 0.68);
+    }
+    ctx.textAlign = "left";
     ctx.font = "12px Tahoma, Segoe UI, sans-serif";
-    canvas._hitboxes.push({ x: margin.left, y, w: chartWidth, h: barHeight, label: item.label, value: item.value, text: `${item.label}: ${options.valueFormatter ? options.valueFormatter(item.value) : numberFormatter.format(item.value)}`, onClick: options.onClick });
+    canvas._hitboxes.push({ x: margin.left, y, w: chartWidth, h: barHeight, label: item.label, value: item.value, text: item.label + ": " + label, onClick: options.onClick });
   });
 }
 
@@ -1213,13 +1621,13 @@ function drawGroupedBarChart(canvas, data, options) {
   const { ctx, width, height } = prepareCanvas(canvas);
   drawTitle(ctx, options.title, width);
   if (!data.length) return drawEmpty(ctx, options.emptyText, width, height);
-  const margin = { top: 62, right: 28, bottom: 24, left: Math.min(175, Math.max(118, width * 0.3)) };
-  const chartWidth = width - margin.left - margin.right;
-  const chartHeight = height - margin.top - margin.bottom;
-  const rowGap = 13;
-  const barHeight = Math.max(8, (chartHeight - rowGap * data.length) / (data.length * 2));
+  const margin = { top: 70, right: 30, bottom: 24, left: Math.min(210, Math.max(124, width * 0.3)) };
+  const chartWidth = Math.max(140, width - margin.left - margin.right);
+  const chartHeight = Math.max(90, height - margin.top - margin.bottom);
+  const rowGap = 12;
+  const barHeight = Math.max(7, Math.min(14, (chartHeight - rowGap * data.length) / (data.length * 2)));
   const max = Math.max(...data.map(item => Math.max(item.first, item.second)), 1);
-  drawLegend(ctx, margin.left, 43, [{ label: options.firstLabel, color: palette[0] }, { label: options.secondLabel, color: palette[1] }]);
+  drawLegend(ctx, margin.left, 44, [{ label: options.firstLabel, color: palette[0] }, { label: options.secondLabel, color: palette[1] }], chartWidth, { maxItems: 2, rowHeight: 18 });
   ctx.strokeStyle = chartLineColor();
   for (let i = 0; i <= 4; i++) {
     const x = margin.left + chartWidth * i / 4;
@@ -1233,7 +1641,7 @@ function drawGroupedBarChart(canvas, data, options) {
     ctx.fillStyle = chartTextColor();
     ctx.textAlign = "right";
     ctx.font = "12px Tahoma, Segoe UI, sans-serif";
-    ctx.fillText(truncate(item.label, 22), margin.left - 10, y + barHeight * 1.3);
+    ctx.fillText(truncate(item.label, canvas.id === "expandedChartCanvas" ? 32 : 20), margin.left - 10, y + barHeight * 1.3);
     ctx.textAlign = "left";
     const firstWidth = Math.max(2, chartWidth * item.first / max);
     const secondWidth = Math.max(2, chartWidth * item.second / max);
@@ -1243,7 +1651,7 @@ function drawGroupedBarChart(canvas, data, options) {
     ctx.fillStyle = palette[1];
     roundRect(ctx, margin.left, y + barHeight + 3, secondWidth, barHeight, 5);
     ctx.fill();
-    canvas._hitboxes.push({ x: margin.left, y, w: chartWidth, h: barHeight * 2 + 3, label: item.label, value: item.first, text: `${item.label}<br>${options.firstLabel}: ${numberFormatter.format(item.first)}<br>${options.secondLabel}: ${numberFormatter.format(item.second)}`, onClick: options.onClick });
+    canvas._hitboxes.push({ x: margin.left, y, w: chartWidth, h: barHeight * 2 + 3, label: item.label, value: item.first, text: item.label + "<br>" + options.firstLabel + ": " + numberFormatter.format(item.first) + "<br>" + options.secondLabel + ": " + numberFormatter.format(item.second), onClick: options.onClick });
   });
 }
 
@@ -1253,9 +1661,13 @@ function drawDoughnutChart(canvas, data, options) {
   if (!data.length) return drawEmpty(ctx, options.emptyText, width, height);
   const total = data.reduce((t, item) => t + item.value, 0);
   if (!total) return drawEmpty(ctx, options.emptyText, width, height);
-  const radius = Math.min(width * 0.24, height * 0.31, 105);
-  const cx = Math.max(radius + 32, width * 0.34);
-  const cy = height * 0.55;
+  const expanded = canvas.id === "expandedChartCanvas";
+  const useSideLegend = width >= 620;
+  const top = 54;
+  const bottomReserve = useSideLegend ? 20 : 86;
+  const radius = Math.min(width * (useSideLegend ? 0.18 : 0.22), (height - top - bottomReserve) * 0.42, expanded ? 148 : 110);
+  const cx = useSideLegend ? Math.max(radius + 32, width * 0.31) : width / 2;
+  const cy = useSideLegend ? height * 0.55 : top + radius + 12;
   let angle = -Math.PI / 2;
   data.forEach((item, index) => {
     const slice = total ? item.value / total * Math.PI * 2 : 0;
@@ -1265,7 +1677,8 @@ function drawDoughnutChart(canvas, data, options) {
     ctx.closePath();
     ctx.fillStyle = item.color || palette[index % palette.length];
     ctx.fill();
-    canvas._hitboxes.push({ cx, cy, radius, start: angle, end: angle + slice, label: item.label, value: item.value, text: `${statusLabel(item.label)}: ${numberFormatter.format(item.value)}${options.valueSuffix || ""} (${total ? Math.round(item.value / total * 100) : 0}%)`, onClick: options.onClick, arc: true });
+    const pct = total ? Math.round(item.value / total * 100) : 0;
+    canvas._hitboxes.push({ cx, cy, radius, start: angle, end: angle + slice, label: item.label, value: item.value, text: statusLabel(item.label) + ": " + numberFormatter.format(item.value) + (options.valueSuffix || "") + " (" + pct + "%)", onClick: options.onClick, arc: true });
     angle += slice;
   });
   ctx.beginPath();
@@ -1273,11 +1686,22 @@ function drawDoughnutChart(canvas, data, options) {
   ctx.fillStyle = chartPanelColor();
   ctx.fill();
   ctx.fillStyle = chartTextColor();
-  ctx.font = "800 18px Tahoma, Segoe UI, sans-serif";
+  ctx.font = expanded ? "800 22px Tahoma, Segoe UI, sans-serif" : "800 17px Tahoma, Segoe UI, sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(numberFormatter.format(total), cx, cy + 6);
+  const legendItems = data.map((item, index) => ({
+    label: statusLabel(item.label) + ": " + numberFormatter.format(item.value) + (options.valueSuffix || ""),
+    color: item.color || palette[index % palette.length]
+  }));
+  if (useSideLegend) {
+    const legendX = cx + radius + 30;
+    const legendY = Math.max(58, cy - Math.min(radius, legendItems.length * 9));
+    const maxRows = Math.max(3, Math.floor((height - legendY - 14) / 18));
+    drawLegend(ctx, legendX, legendY, legendItems, Math.max(140, width - legendX - 16), { maxItems: expanded ? legendItems.length : maxRows, rowHeight: 18 });
+  } else {
+    drawLegend(ctx, 18, Math.min(height - 74, cy + radius + 24), legendItems, width - 36, { maxItems: expanded ? legendItems.length : 3, rowHeight: 18 });
+  }
   ctx.textAlign = "left";
-  drawLegend(ctx, cx + radius + 36, cy - radius + 10, data.map((item, index) => ({ label: `${statusLabel(item.label)}: ${numberFormatter.format(item.value)}${options.valueSuffix || ""}`, color: item.color || palette[index % palette.length] })), width - (cx + radius + 48));
 }
 
 function drawLineChart(canvas, data, options) {
@@ -1326,17 +1750,25 @@ function drawLineChart(canvas, data, options) {
   ctx.textAlign = "left";
 }
 
-function drawLegend(ctx, x, y, items, maxWidth = 260) {
-  let offsetY = 0;
-  ctx.font = "12px Tahoma, Segoe UI, sans-serif";
-  items.forEach(item => {
+function drawLegend(ctx, x, y, items, maxWidth = 260, options = {}) {
+  const rowHeight = options.rowHeight || 18;
+  const maxItems = Math.max(0, Math.min(items.length, options.maxItems ?? items.length));
+  const visibleItems = items.slice(0, maxItems);
+  ctx.font = "11px Tahoma, Segoe UI, sans-serif";
+  ctx.textAlign = "left";
+  visibleItems.forEach((item, index) => {
+    const offsetY = index * rowHeight;
     ctx.fillStyle = item.color;
-    roundRect(ctx, x, y + offsetY - 10, 11, 11, 3);
+    roundRect(ctx, x, y + offsetY - 10, 10, 10, 3);
     ctx.fill();
     ctx.fillStyle = chartTextColor();
-    ctx.fillText(truncate(item.label, Math.max(14, Math.floor(maxWidth / 7))), x + 18, y + offsetY);
-    offsetY += 22;
+    ctx.fillText(truncate(item.label, Math.max(12, Math.floor(maxWidth / 7))), x + 16, y + offsetY);
   });
+  if (items.length > maxItems) {
+    ctx.fillStyle = chartMutedColor();
+    ctx.font = "700 11px Tahoma, Segoe UI, sans-serif";
+    ctx.fillText("+" + numberFormatter.format(items.length - maxItems) + " more", x, y + visibleItems.length * rowHeight);
+  }
 }
 
 function handleChartMove(event, canvas) {

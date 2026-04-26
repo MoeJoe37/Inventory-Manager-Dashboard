@@ -82,20 +82,36 @@
             <label><span data-i18n="dateTo">تاريخ الإزالة إلى</span><input id="dateTo" type="date"></label>
             <label><span data-i18n="lowStockThreshold">حد المخزون المنخفض</span><input id="lowStockThreshold" type="number" min="0" step="1" value="5"></label>
             <button id="clearBtn" class="pill-btn danger" type="button" data-i18n="clearData">مسح البيانات</button>
+            <div class="optional-kpi-panel">
+              <div class="optional-kpi-title" data-i18n="optionalKpis">مؤشرات إضافية</div>
+              <div id="optionalKpiToggles" class="optional-kpi-toggles"></div>
+            </div>
           </div>
         </details>
       </section>
 
+      <section id="quickViewBar" class="quick-view-bar" hidden>
+        <strong id="quickViewLabel"></strong>
+        <button id="clearQuickViewBtn" class="pill-btn" type="button" data-i18n="clearQuickView">إلغاء العرض</button>
+      </section>
+
       <section class="kpi-grid" aria-label="Inventory KPIs">
-        <article class="kpi-card blue"><span data-i18n="kpiProducts">إجمالي المنتجات</span><strong id="kpiProducts">0</strong><small id="kpiRowsSub">0 سجل</small></article>
-        <article class="kpi-card red"><span data-i18n="kpiOut">نفاد المخزون</span><strong id="kpiOut">0</strong><small data-i18n="kpiOutSub">كمية متاحة = 0</small></article>
-        <article class="kpi-card amber"><span data-i18n="kpiLow">مخزون منخفض</span><strong id="kpiLow">0</strong><small data-i18n="kpiLowSub">حسب الحد المحدد</small></article>
-        <article class="kpi-card green"><span data-i18n="kpiOnHand">إجمالي الكميات</span><strong id="kpiOnHand">0</strong><small data-i18n="kpiOnHandSub">وحدات موجودة</small></article>
-        <article class="kpi-card purple"><span data-i18n="kpiValue">إجمالي القيمة</span><strong id="kpiValue">0</strong><small data-i18n="kpiValueSub">القيمة الإجمالية</small></article>
-        <article class="kpi-card slate"><span data-i18n="kpiLocations">عدد الفروع</span><strong id="kpiLocations">0</strong><small data-i18n="kpiLocationsSub">فرع / موقع مخزن</small></article>
-        <article class="kpi-card hidden-kpi"><span>Rows</span><strong id="kpiRows">0</strong><small>0 filtered</small></article>
-        <article class="kpi-card hidden-kpi"><span>Available</span><strong id="kpiAvailable">0</strong><small>Available</small></article>
-        <article class="kpi-card hidden-kpi"><span>Reserved</span><strong id="kpiReserved">0</strong><small>Reserved</small></article>
+        <article id="kpiProductsCard" class="kpi-card blue clickable-kpi" role="button" tabindex="0" data-kpi-view="products"><span data-i18n="kpiProducts">إجمالي المنتجات</span><strong id="kpiProducts">0</strong><small id="kpiRowsSub">0 سجل</small></article>
+        <article id="kpiOutCard" class="kpi-card red clickable-kpi" role="button" tabindex="0" data-kpi-view="out"><span data-i18n="kpiOut">نفاد المخزون</span><strong id="kpiOut">0</strong><small data-i18n="kpiOutSub">كمية متاحة = 0</small></article>
+        <article id="kpiNegativeCard" class="kpi-card rose clickable-kpi" role="button" tabindex="0" data-kpi-view="negative"><span data-i18n="kpiNegative">مخزون سالب</span><strong id="kpiNegative">0</strong><small data-i18n="kpiNegativeSub">كمية أقل من 0</small></article>
+        <article id="kpiLowCard" class="kpi-card amber clickable-kpi" role="button" tabindex="0" data-kpi-view="low"><span data-i18n="kpiLow">مخزون منخفض</span><strong id="kpiLow">0</strong><small data-i18n="kpiLowSub">حسب الحد المحدد</small></article>
+        <article id="kpiOnHandCard" class="kpi-card green clickable-kpi" role="button" tabindex="0" data-kpi-view="onHand"><span data-i18n="kpiOnHand">إجمالي الكميات</span><strong id="kpiOnHand">0</strong><small data-i18n="kpiOnHandSub">وحدات موجودة</small></article>
+        <article id="kpiValueCard" class="kpi-card purple clickable-kpi" role="button" tabindex="0" data-kpi-view="value"><span data-i18n="kpiValue">إجمالي القيمة</span><strong id="kpiValue">0</strong><small data-i18n="kpiValueSub">القيمة الإجمالية</small></article>
+        <article id="kpiLocationsCard" class="kpi-card slate clickable-kpi" role="button" tabindex="0" data-kpi-view="locations"><span data-i18n="kpiLocations">عدد الفروع</span><strong id="kpiLocations">0</strong><small data-i18n="kpiLocationsSub">فرع / موقع مخزن</small></article>
+        <article id="kpiRowsCard" class="kpi-card cyan optional-kpi clickable-kpi" data-kpi-card="rows" hidden role="button" tabindex="0" data-kpi-view="rows"><span data-i18n="kpiRowsOptional">السجلات المعروضة</span><strong id="kpiRows">0</strong><small data-i18n="kpiRowsOptionalSub">بعد التصفية</small></article>
+        <article id="kpiAvailableCard" class="kpi-card teal optional-kpi clickable-kpi" data-kpi-card="available" hidden role="button" tabindex="0" data-kpi-view="available"><span data-i18n="kpiAvailable">إجمالي المتاح</span><strong id="kpiAvailable">0</strong><small data-i18n="kpiAvailableSub">كمية متاحة</small></article>
+        <article id="kpiReservedCard" class="kpi-card indigo optional-kpi clickable-kpi" data-kpi-card="reserved" hidden role="button" tabindex="0" data-kpi-view="reserved"><span data-i18n="kpiReserved">إجمالي المحجوز</span><strong id="kpiReserved">0</strong><small data-i18n="kpiReservedSub">غير متاح / محجوز</small></article>
+        <article id="kpiCategoriesCard" class="kpi-card blue optional-kpi clickable-kpi" data-kpi-card="categories" hidden role="button" tabindex="0" data-kpi-view="categories"><span data-i18n="kpiCategories">عدد الفئات</span><strong id="kpiCategories">0</strong><small data-i18n="kpiCategoriesSub">فئات ضمن العرض</small></article>
+        <article id="kpiUomsCard" class="kpi-card slate optional-kpi clickable-kpi" data-kpi-card="uoms" hidden role="button" tabindex="0" data-kpi-view="uoms"><span data-i18n="kpiUoms">وحدات القياس</span><strong id="kpiUoms">0</strong><small data-i18n="kpiUomsSub">أنواع وحدات</small></article>
+        <article id="kpiBatchesCard" class="kpi-card purple optional-kpi clickable-kpi" data-kpi-card="batches" hidden role="button" tabindex="0" data-kpi-view="batches"><span data-i18n="kpiBatches">الدُفعات</span><strong id="kpiBatches">0</strong><small data-i18n="kpiBatchesSub">دفعات / أرقام تسلسل</small></article>
+        <article id="kpiDatedCard" class="kpi-card amber optional-kpi clickable-kpi" data-kpi-card="dated" hidden role="button" tabindex="0" data-kpi-view="dated"><span data-i18n="kpiDated">بتاريخ إزالة</span><strong id="kpiDated">0</strong><small data-i18n="kpiDatedSub">صفوف لها تاريخ</small></article>
+        <article id="kpiAvgUnitValueCard" class="kpi-card green optional-kpi clickable-kpi" data-kpi-card="avgUnitValue" hidden role="button" tabindex="0" data-kpi-view="avgUnitValue"><span data-i18n="kpiAvgUnitValue">متوسط قيمة الوحدة</span><strong id="kpiAvgUnitValue">0</strong><small data-i18n="kpiAvgUnitValueSub">القيمة ÷ الكمية</small></article>
+        <article id="kpiReservedValueCard" class="kpi-card rose optional-kpi clickable-kpi" data-kpi-card="reservedValue" hidden role="button" tabindex="0" data-kpi-view="reservedValue"><span data-i18n="kpiReservedValue">قيمة المحجوز</span><strong id="kpiReservedValue">0</strong><small data-i18n="kpiReservedValueSub">قيمة صفوف محجوزة</small></article>
       </section>
 
       <section class="charts-section" aria-label="Inventory charts">
@@ -146,6 +162,16 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div id="chartModal" class="chart-modal" hidden role="dialog" aria-modal="true" aria-labelledby="chartModalTitle">
+    <div class="chart-modal-panel">
+      <div class="chart-modal-header">
+        <h2 id="chartModalTitle">Chart</h2>
+        <button id="chartModalClose" class="pill-btn" type="button" data-i18n="closeExpanded">إغلاق</button>
+      </div>
+      <canvas id="expandedChartCanvas"></canvas>
+    </div>
   </div>
   <div id="tooltip" class="tooltip" hidden></div>
   <script src="app.js"></script>
