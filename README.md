@@ -4,6 +4,9 @@ A fully browser-based inventory dashboard for XLSX / CSV stock files, including 
 
 ## What changed in this version
 
+- Fixed the import flow so the dashboard becomes visible immediately after a successful full-file import.
+- Added a safer render fallback: if charts or the location-popup table rendering fail in a browser, the imported table still appears instead of doing nothing.
+- Added workbook sheet detection, so if an XLSX contains more than one worksheet, the importer chooses the sheet that contains the supported inventory headers.
 - Added support for the new English Odoo `stock.quant` export format.
 - Added support for the Arabic Odoo `stock.quant` export that includes the extra company column.
 - The optional `Company` / `الشركة` / `Company Name` field is ignored during import and is not required.
@@ -57,3 +60,15 @@ No backend, database, build step, or external JavaScript library is required.
 - Drag the edge of any column header to resize it.
 - Double-click a column resize edge to reset that column width.
 - Column visibility and custom widths are saved in the browser.
+
+## v20 update
+
+- Import now shows a clear importing message while the file is being read.
+- Full Odoo grouped exports were tested against the included Arabic, English, and Arabic-with-company formats.
+- Location-count popups remain available after import.
+
+## v18 update
+
+- The Location column now shows a location-count badge when a product exists in multiple locations.
+- Clicking the badge opens a small scrollable popup showing each location with summed on-hand and available quantities.
+- Products with multiple lot/serial numbers are still combined per location inside this popup.

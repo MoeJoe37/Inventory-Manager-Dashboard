@@ -56,6 +56,8 @@ const I18N = {
     templateCsv: "⬇ قالب CSV",
     emptySubtitle: "استورد ملف المخزون لعرض لوحة تحليل تفاعلية.",
     importXlsxCsv: "استيراد XLSX / CSV",
+    importWorking: "جارٍ استيراد الملف...",
+    renderWarning: "تم تحميل البيانات، لكن حدث خطأ أثناء رسم بعض عناصر اللوحة. تم عرض الجدول والبيانات الأساسية.",
     downloadTemplate: "تنزيل القالب",
     searchPlaceholder: "بحث عن منتج أو موقع أو رقم دفعة أو فئة...",
     exportCsv: "⬇ تصدير CSV",
@@ -202,6 +204,11 @@ const I18N = {
     quickAvgUnitValue: "عرض صفوف قيمة الوحدة",
     quickReservedValue: "عرض قيمة المحجوز",
     clearQuickView: "إلغاء العرض",
+    locationsBadge: "{count} مواقع",
+    locationsBadgeOne: "{count} موقع",
+    productLocationsTitle: "مواقع {product} — {count} موقع",
+    locationPopupOnHand: "الموجود",
+    locationPopupAvailable: "المتاح",
     noRowsMatch: "لا توجد صفوف تطابق عوامل التصفية الحالية."
   },
   en: {
@@ -217,6 +224,8 @@ const I18N = {
     templateCsv: "⬇ CSV template",
     emptySubtitle: "Import the inventory file to open the interactive dashboard.",
     importXlsxCsv: "Import XLSX / CSV",
+    importWorking: "Importing file...",
+    renderWarning: "Data was loaded, but part of the dashboard failed to render. The table and core data were still displayed.",
     downloadTemplate: "Download template",
     searchPlaceholder: "Search product, location, batch/serial, or category...",
     exportCsv: "⬇ Export CSV",
@@ -363,6 +372,11 @@ const I18N = {
     quickAvgUnitValue: "Viewing unit-value rows",
     quickReservedValue: "Viewing reserved-value rows",
     clearQuickView: "Clear view",
+    locationsBadge: "{count} locations",
+    locationsBadgeOne: "{count} location",
+    productLocationsTitle: "{product} locations — {count}",
+    locationPopupOnHand: "On hand",
+    locationPopupAvailable: "Available",
     noRowsMatch: "No rows match the active filters."
   }
 };
@@ -512,8 +526,9 @@ function bindEvents() {
   $("#langArBtn")?.addEventListener("click", () => setLanguage("ar"));
   $("#langEnBtn")?.addEventListener("click", () => setLanguage("en"));
   document.addEventListener("click", closeSettingsWhenClickingOutside);
-  window.addEventListener("resize", debounce(positionSettingsPanel, 80));
-  window.addEventListener("scroll", debounce(positionSettingsPanel, 80), true);
+  document.addEventListener("click", closeLocationPopoverWhenClickingOutside);
+  window.addEventListener("resize", debounce(() => { positionSettingsPanel(); closeLocationPopover(); }, 80));
+  window.addEventListener("scroll", debounce(() => { positionSettingsPanel(); closeLocationPopover(); }, 80), true);
   $("#fileInput").addEventListener("change", event => handleFileImport(event.target.files[0]));
   $("#templateXlsxBtn").addEventListener("click", () => downloadXlsx("inventory_import_template.xlsx", SAMPLE_ROWS));
   $("#templateCsvBtn").addEventListener("click", () => downloadCsv("inventory_import_template.csv", SAMPLE_ROWS));
@@ -953,32 +968,39 @@ function renderColumnToggles() {
 
 async function handleFileImport(file) {
   if (!file) return;
-  clearMessage();
+  showMessage(t("importWorking"), "info");
   try {
     const extension = file.name.split(".").pop().toLowerCase();
     const matrix = extension === "csv" ? await readCsvFile(file) : await readXlsxFile(file);
     const result = matrixToRows(matrix);
+
     state.rows = result.rows;
     state.qualityIssues = result.qualityIssues;
     state.importMeta = result.importMeta;
+    state.filteredRows = result.rows.slice();
     state.page = 1;
     state.sortKey = "value";
     state.sortDirection = "desc";
     state.productTotals = false;
-    updateProductTotalsToggle();
-    updateFilterOptions();
-    resetFilters(false);
+
     $("#dashboard").hidden = false;
     $("#emptyState").hidden = true;
+
+    updateProductTotalsToggle();
+    updateFilterOptions();
+    resetFilterControls();
     updateMoreChartsUi();
     const settingsPanel = $("#settingsPanel");
     if (settingsPanel) settingsPanel.hidden = true;
     updateSettingsUi();
     updateLastUpdated(file.name);
-    requestAnimationFrame(() => updateCharts());
+
+    const renderedCleanly = safeApplyFilters();
     const skippedText = state.importMeta.skippedSummaryRows ? t("skippedSummary", { count: numberFormatter.format(state.importMeta.skippedSummaryRows) }) : "";
-    showMessage(t("importSuccess", { count: numberFormatter.format(state.rows.length), file: escapeHtml(file.name) }) + skippedText, "success", 4200);
+    const warningText = renderedCleanly ? "" : ` ${t("renderWarning")}`;
+    showMessage(t("importSuccess", { count: numberFormatter.format(state.rows.length), file: escapeHtml(file.name) }) + skippedText + warningText, renderedCleanly ? "success" : "error", renderedCleanly ? 4200 : 0);
   } catch (error) {
+    console.error("Inventory import failed", error);
     showMessage(error.message || (state.language === "ar" ? "فشل الاستيراد. تأكد من صيغة الملف والأعمدة المطلوبة." : "Import failed. Check the file format and required columns."));
   } finally {
     $("#fileInput").value = "";
@@ -1001,13 +1023,42 @@ async function readXlsxFile(file) {
   Array.from(relsDoc.getElementsByTagName("Relationship")).forEach(rel => {
     relationships[rel.getAttribute("Id")] = resolveWorkbookTarget(rel.getAttribute("Target"));
   });
-  const firstSheet = workbookDoc.getElementsByTagName("sheet")[0];
-  if (!firstSheet) throw new Error("The workbook does not contain a worksheet.");
-  const rid = firstSheet.getAttribute("r:id") || firstSheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
-  const sheetPath = relationships[rid] || "xl/worksheets/sheet1.xml";
+
   const sharedStrings = files["xl/sharedStrings.xml"] ? parseSharedStrings(textFromFile(files, "xl/sharedStrings.xml")) : [];
-  const sheetXml = textFromFile(files, sheetPath);
-  return parseWorksheet(sheetXml, sharedStrings);
+  const sheets = Array.from(workbookDoc.getElementsByTagName("sheet"));
+  if (!sheets.length) throw new Error("The workbook does not contain a worksheet.");
+
+  const candidates = [];
+  for (let index = 0; index < sheets.length; index += 1) {
+    const sheet = sheets[index];
+    const rid = sheet.getAttribute("r:id") || sheet.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+    const sheetPath = relationships[rid] || `xl/worksheets/sheet${index + 1}.xml`;
+    if (!files[sheetPath]) continue;
+    try {
+      const matrix = parseWorksheet(textFromFile(files, sheetPath), sharedStrings);
+      candidates.push({ matrix, score: worksheetHeaderScore(matrix), sheetPath });
+    } catch (error) {
+      console.warn("Skipping unreadable worksheet", sheetPath, error);
+    }
+  }
+
+  if (!candidates.length) throw new Error("No readable worksheet was found in the workbook.");
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates[0].matrix;
+}
+
+function worksheetHeaderScore(matrix) {
+  const required = REQUIRED_COLUMNS.filter(column => !OPTIONAL_IMPORT_COLUMNS.has(column));
+  let bestScore = 0;
+  matrix
+    .filter(row => row.some(cell => String(cell ?? "").trim() !== ""))
+    .slice(0, 40)
+    .forEach(row => {
+      const headers = row.map(canonicalHeader);
+      const score = required.filter(column => headers.includes(column)).length;
+      if (score > bestScore) bestScore = score;
+    });
+  return bestScore;
 }
 
 function matrixToRows(matrix) {
@@ -1201,7 +1252,7 @@ function applyFilters() {
   renderQuickViewBar();
 }
 
-function resetFilters(shouldApply = true) {
+function resetFilterControls() {
   state.quickView = null;
   $("#searchInput").value = "";
   $("#categoryFilter").value = "";
@@ -1212,10 +1263,33 @@ function resetFilters(shouldApply = true) {
   updateProductTotalsToggle();
   if ($("#dateFrom")) $("#dateFrom").value = "";
   if ($("#dateTo")) $("#dateTo").value = "";
-  if (shouldApply) {
-    state.page = 1;
+}
+
+function resetFilters(shouldApply = true) {
+  resetFilterControls();
+  if (shouldApply) state.page = 1;
+  if (shouldApply || state.rows.length) applyFilters();
+}
+
+function safeApplyFilters() {
+  try {
     applyFilters();
-  } else applyFilters();
+    return true;
+  } catch (error) {
+    console.error("Dashboard rendering failed after import", error);
+    try {
+      state.filteredRows = state.productTotals ? aggregateRowsByProduct(state.rows) : state.rows.slice();
+      sortRows();
+    } catch (fallbackError) {
+      console.error("Fallback sorting failed", fallbackError);
+      state.filteredRows = state.rows.slice();
+    }
+    try { renderKpis(); } catch (fallbackError) { console.error("Fallback KPI rendering failed", fallbackError); }
+    try { renderTable(); } catch (fallbackError) { console.error("Fallback table rendering failed", fallbackError); renderSimpleTableFallback(); }
+    try { renderQuickViewBar(); } catch (fallbackError) { console.error("Fallback quick-view rendering failed", fallbackError); }
+    try { updateCharts(); } catch (fallbackError) { console.error("Fallback chart rendering failed", fallbackError); }
+    return false;
+  }
 }
 
 function clearData() {
@@ -1532,10 +1606,36 @@ function renderTable() {
     changeSort(th.dataset.key);
   }));
   setupColumnResizing();
+  setupLocationButtons();
   $("#tableInfo").textContent = t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.productTotals ? aggregateRowsByProduct(state.rows).length : state.rows.length) });
   $("#pageInfo").textContent = t("pageInfo", { page: numberFormatter.format(state.page), pages: numberFormatter.format(pages) });
   $("#prevPageBtn").disabled = state.page <= 1;
   $("#nextPageBtn").disabled = state.page >= pages;
+}
+
+function renderSimpleTableFallback() {
+  const table = $("#inventoryTable");
+  if (!table) return;
+  const visible = DISPLAY_COLUMNS.filter(column => state.visibleColumns.has(column.key));
+  const pages = getPageCount();
+  state.page = Math.min(Math.max(1, state.page), pages);
+  const start = (state.page - 1) * state.pageSize;
+  const pageRows = state.filteredRows.slice(start, start + state.pageSize);
+  table.innerHTML = `
+    <thead><tr>${visible.map(column => `<th class="${column.rtl ? "rtl" : ""}">${escapeHtml(columnLabel(column))}</th>`).join("")}</tr></thead>
+    <tbody>${pageRows.map(row => `<tr>${visible.map(column => `<td class="${column.rtl ? "rtl" : ""}">${formatCellPlain(row, column)}</td>`).join("")}</tr>`).join("")}</tbody>
+  `;
+  if ($("#tableInfo")) $("#tableInfo").textContent = t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.productTotals ? aggregateRowsByProduct(state.rows).length : state.rows.length) });
+  if ($("#pageInfo")) $("#pageInfo").textContent = t("pageInfo", { page: numberFormatter.format(state.page), pages: numberFormatter.format(pages) });
+  if ($("#prevPageBtn")) $("#prevPageBtn").disabled = state.page <= 1;
+  if ($("#nextPageBtn")) $("#nextPageBtn").disabled = state.page >= pages;
+}
+
+function formatCellPlain(row, column) {
+  if (column.type === "number") return escapeHtml(numberFormatter.format(row[column.key] || 0));
+  if (column.type === "currency") return escapeHtml(currencyFormatter.format(row[column.key] || 0));
+  if (column.type === "status") return escapeHtml(statusLabel(row.status));
+  return escapeHtml(row[column.key] ?? "");
 }
 
 function columnWidth(column) {
@@ -1596,10 +1696,134 @@ function applyColumnWidth(key, width) {
 }
 
 function formatCell(row, column) {
+  if (column.key === "location") return formatLocationCell(row);
   if (column.type === "number") return numberFormatter.format(row[column.key] || 0);
   if (column.type === "currency") return currencyFormatter.format(row[column.key] || 0);
   if (column.type === "status") return `<span class="status-pill status-${row.status.toLowerCase()}">${statusLabel(row.status)}</span>`;
   return escapeHtml(row[column.key] ?? "");
+}
+
+function formatLocationCell(row) {
+  const locationText = escapeHtml(row.location || "");
+  const details = getProductLocationDetails(row.product);
+  if (details.length <= 1) return locationText;
+  const count = details.length;
+  const labelKey = count === 1 ? "locationsBadgeOne" : "locationsBadge";
+  return `
+    <span class="location-cell">
+      <span class="location-name" title="${escapeHtml(row.location || "")}">${locationText}</span>
+      <button class="location-count-btn" type="button"
+        data-product="${escapeHtml(row.product || "")}"
+        aria-label="${escapeHtml(t("productLocationsTitle", { product: shortProductLabel(row.product), count: numberFormatter.format(count) }))}">
+        ${escapeHtml(t(labelKey, { count: numberFormatter.format(count) }))}
+      </button>
+    </span>`;
+}
+
+function setupLocationButtons() {
+  $$(".location-count-btn").forEach(button => {
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      showLocationPopover(event.currentTarget);
+    });
+  });
+}
+
+function getProductLocationDetails(product) {
+  const productKey = String(product || "");
+  if (!productKey) return [];
+  const map = new Map();
+  state.rows.forEach(row => {
+    if (row.product !== productKey) return;
+    const location = row.location || "Unspecified";
+    if (!map.has(location)) {
+      map.set(location, { location, onHand: 0, available: 0, reserved: 0, value: 0 });
+    }
+    const item = map.get(location);
+    item.onHand += Number(row.onHand) || 0;
+    item.available += Number(row.available) || 0;
+    item.reserved += Number(row.reserved) || 0;
+    item.value += Number(row.value) || 0;
+  });
+  return Array.from(map.values()).sort((a, b) => b.onHand - a.onHand || a.location.localeCompare(b.location, undefined, { numeric: true, sensitivity: "base" }));
+}
+
+function shortProductLabel(product) {
+  const text = String(product || "").trim();
+  const match = text.match(/^\s*\[([^\]]+)\]/);
+  return match ? match[1] : truncate(text, 34);
+}
+
+function ensureLocationPopover() {
+  let popover = $("#locationPopover");
+  if (!popover) {
+    popover = document.createElement("div");
+    popover.id = "locationPopover";
+    popover.className = "location-popover";
+    popover.hidden = true;
+    document.body.appendChild(popover);
+  }
+  return popover;
+}
+
+function showLocationPopover(button) {
+  const product = button.dataset.product || "";
+  const details = getProductLocationDetails(product);
+  const popover = ensureLocationPopover();
+  const count = details.length;
+  const rowsHtml = details.map(item => `
+    <div class="location-popover-row">
+      <span class="location-popover-location" title="${escapeHtml(item.location)}">${escapeHtml(item.location)}</span>
+      <span class="location-popover-number">${numberFormatter.format(item.onHand)}</span>
+      <span class="location-popover-number available">${numberFormatter.format(item.available)}</span>
+    </div>`).join("");
+
+  popover.innerHTML = `
+    <div class="location-popover-header">
+      <strong>${escapeHtml(t("productLocationsTitle", { product: shortProductLabel(product), count: numberFormatter.format(count) }))}</strong>
+      <button type="button" class="location-popover-close" aria-label="Close">×</button>
+    </div>
+    <div class="location-popover-head">
+      <span>${escapeHtml(t("colLocation"))}</span>
+      <span>${escapeHtml(t("locationPopupOnHand"))}</span>
+      <span>${escapeHtml(t("locationPopupAvailable"))}</span>
+    </div>
+    <div class="location-popover-list">${rowsHtml}</div>
+  `;
+  popover.querySelector(".location-popover-close")?.addEventListener("click", event => {
+    event.stopPropagation();
+    closeLocationPopover();
+  });
+  popover.hidden = false;
+  positionLocationPopover(button, popover);
+}
+
+function positionLocationPopover(button, popover) {
+  const rect = button.getBoundingClientRect();
+  const width = Math.min(430, Math.max(320, Math.floor(window.innerWidth - 24)));
+  popover.style.width = width + "px";
+  const popoverRect = popover.getBoundingClientRect();
+  let left = isRtl() ? rect.right - popoverRect.width : rect.left;
+  left = Math.min(window.innerWidth - popoverRect.width - 10, Math.max(10, left));
+  let top = rect.bottom + 8;
+  if (top + popoverRect.height > window.innerHeight - 10) {
+    top = Math.max(10, rect.top - popoverRect.height - 8);
+  }
+  popover.style.left = `${left}px`;
+  popover.style.top = `${top}px`;
+}
+
+function closeLocationPopover() {
+  const popover = $("#locationPopover");
+  if (popover) popover.hidden = true;
+}
+
+function closeLocationPopoverWhenClickingOutside(event) {
+  const popover = $("#locationPopover");
+  if (!popover || popover.hidden) return;
+  if (event.target.closest("#locationPopover") || event.target.closest(".location-count-btn")) return;
+  closeLocationPopover();
 }
 
 function changeSort(key) {
