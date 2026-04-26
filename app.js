@@ -86,6 +86,27 @@ const I18N = {
     chartTopProducts: "أعلى المنتجات حسب القيمة",
     chartStockStatus: "حالة المخزون",
     chartRemovalTimeline: "تاريخ الإزالة حسب الشهر",
+    moreCharts: "عرض المزيد من الرسوم",
+    lessCharts: "إخفاء الرسوم الإضافية",
+    chartValueByLocation: "القيمة حسب الموقع",
+    chartAvailableReservedByCategory: "المتاح والمحجوز حسب الفئة",
+    chartProductsByCategory: "عدد المنتجات حسب الفئة",
+    chartUomDistribution: "الكميات حسب وحدة القياس",
+    chartReservedByLocation: "الكميات المحجوزة حسب الموقع",
+    chartLowStockProducts: "أقل المنتجات توفرًا",
+    chartBatchCountByCategory: "عدد الدُفعات حسب الفئة",
+    chartUnitValueProducts: "أعلى المنتجات حسب قيمة الوحدة",
+    emptyValueLocation: "لا توجد بيانات قيمة حسب الموقع",
+    emptyAvailableReservedCategory: "لا توجد بيانات متاح ومحجوز",
+    emptyProductsCategory: "لا توجد بيانات منتجات حسب الفئة",
+    emptyUom: "لا توجد بيانات وحدات قياس",
+    emptyReservedLocation: "لا توجد كميات محجوزة",
+    emptyLowStockProducts: "لا توجد منتجات منخفضة المخزون",
+    emptyBatchCategory: "لا توجد بيانات دُفعات",
+    emptyUnitValueProducts: "لا توجد بيانات قيمة وحدة",
+    reservedQty: "المحجوزة",
+    productCount: "منتج",
+    batchCount: "دفعة",
     emptyValueCategory: "لا توجد بيانات قيمة حسب الفئة",
     emptyQtyCategory: "لا توجد بيانات كميات حسب الفئة",
     emptyLocations: "لا توجد بيانات مواقع",
@@ -173,6 +194,27 @@ const I18N = {
     chartTopProducts: "Top products by value",
     chartStockStatus: "Stock status",
     chartRemovalTimeline: "Removal date by month",
+    moreCharts: "See more charts",
+    lessCharts: "Show fewer charts",
+    chartValueByLocation: "Value by location",
+    chartAvailableReservedByCategory: "Available and reserved by category",
+    chartProductsByCategory: "Product count by category",
+    chartUomDistribution: "Quantity by unit of measure",
+    chartReservedByLocation: "Reserved quantity by location",
+    chartLowStockProducts: "Lowest available products",
+    chartBatchCountByCategory: "Batch count by category",
+    chartUnitValueProducts: "Top products by unit value",
+    emptyValueLocation: "No location value data",
+    emptyAvailableReservedCategory: "No available/reserved data",
+    emptyProductsCategory: "No product-by-category data",
+    emptyUom: "No unit-of-measure data",
+    emptyReservedLocation: "No reserved quantity",
+    emptyLowStockProducts: "No low-stock products",
+    emptyBatchCategory: "No batch data",
+    emptyUnitValueProducts: "No unit-value data",
+    reservedQty: "Reserved",
+    productCount: "products",
+    batchCount: "batches",
     emptyValueCategory: "No category value data",
     emptyQtyCategory: "No category quantity data",
     emptyLocations: "No location data",
@@ -241,7 +283,8 @@ const state = {
   theme: initialPreferences.theme,
   lastUpdatedAt: null,
   lastUpdatedFileName: "",
-  importMeta: { sourceFormat: "No data loaded", headerRow: 0, skippedSummaryRows: 0, importedRows: 0, originalDataRows: 0 }
+  importMeta: { sourceFormat: "No data loaded", headerRow: 0, skippedSummaryRows: 0, importedRows: 0, originalDataRows: 0 },
+  showMoreCharts: false
 };
 
 const palette = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#22c55e", "#06b6d4", "#f97316", "#64748b", "#ec4899", "#84cc16", "#0ea5e9"];
@@ -288,6 +331,7 @@ function bindEvents() {
   $("#pageSizeSelect").addEventListener("change", event => { state.pageSize = Number(event.target.value); state.page = 1; renderTable(); });
   $("#prevPageBtn").addEventListener("click", () => { state.page = Math.max(1, state.page - 1); renderTable(); });
   $("#nextPageBtn").addEventListener("click", () => { const pages = getPageCount(); state.page = Math.min(pages, state.page + 1); renderTable(); });
+  $("#toggleChartsBtn")?.addEventListener("click", toggleMoreCharts);
 }
 
 function loadPreferences() {
@@ -351,6 +395,7 @@ function setLanguage(language, persist = true) {
   document.querySelectorAll("[data-i18n]").forEach(element => element.textContent = t(element.dataset.i18n));
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
   updateSettingsUi();
+  updateMoreChartsUi();
   updateFilterOptions();
   renderColumnToggles();
   renderKpis();
@@ -366,6 +411,22 @@ function updateSettingsUi() {
   $("#themeDarkBtn")?.classList.toggle("active", state.theme === "dark");
   $("#langArBtn")?.classList.toggle("active", state.language === "ar");
   $("#langEnBtn")?.classList.toggle("active", state.language === "en");
+}
+
+function updateMoreChartsUi() {
+  const extraGrid = $("#extraChartsGrid");
+  const toggleButton = $("#toggleChartsBtn");
+  if (extraGrid) extraGrid.hidden = !state.showMoreCharts;
+  if (toggleButton) {
+    toggleButton.textContent = t(state.showMoreCharts ? "lessCharts" : "moreCharts");
+    toggleButton.setAttribute("aria-expanded", String(state.showMoreCharts));
+  }
+}
+
+function toggleMoreCharts() {
+  state.showMoreCharts = !state.showMoreCharts;
+  updateMoreChartsUi();
+  requestAnimationFrame(() => updateCharts());
 }
 
 function toggleSettingsPanel(event) {
@@ -447,6 +508,7 @@ async function handleFileImport(file) {
     resetFilters(false);
     $("#dashboard").hidden = false;
     $("#emptyState").hidden = true;
+    updateMoreChartsUi();
     const settingsPanel = $("#settingsPanel");
     if (settingsPanel) settingsPanel.hidden = true;
     updateSettingsUi();
@@ -681,6 +743,8 @@ function clearData() {
   state.page = 1;
   state.lastUpdatedAt = null;
   state.lastUpdatedFileName = "";
+  state.showMoreCharts = false;
+  updateMoreChartsUi();
   $("#dashboard").hidden = true;
   $("#emptyState").hidden = false;
   updateLastUpdated();
@@ -771,6 +835,57 @@ function updateCharts() {
     title: t("chartRemovalTimeline"),
     emptyText: t("emptyTimeline")
   });
+
+  if (state.showMoreCharts) {
+    drawVerticalBarChart($("#valueLocationChart"), topEntries(groupSum(rows, "location", "value"), 12), {
+      title: t("chartValueByLocation"),
+      valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+      emptyText: t("emptyValueLocation"),
+      onClick: label => setFilter("#locationFilter", label)
+    });
+    drawGroupedBarChart($("#availableReservedCategoryChart"), topEntries(groupDualSum(rows, "category", "available", "reserved"), 10), {
+      title: t("chartAvailableReservedByCategory"),
+      firstLabel: t("availableQty"),
+      secondLabel: t("reservedQty"),
+      emptyText: t("emptyAvailableReservedCategory"),
+      onClick: label => setFilter("#categoryFilter", label)
+    });
+    drawVerticalBarChart($("#skuCategoryChart"), topEntries(groupUniqueCount(rows, "category", "product"), 12), {
+      title: t("chartProductsByCategory"),
+      valueFormatter: value => `${numberFormatter.format(value)} ${t("productCount")}`,
+      emptyText: t("emptyProductsCategory"),
+      onClick: label => setFilter("#categoryFilter", label)
+    });
+    drawDoughnutChart($("#uomChart"), topEntries(groupSum(rows, "uom", "onHand"), 8), {
+      title: t("chartUomDistribution"),
+      emptyText: t("emptyUom"),
+      valueSuffix: t("unitSuffix"),
+      onClick: label => setFilter("#uomFilter", label)
+    });
+    drawHorizontalBarChart($("#reservedLocationChart"), topEntries(groupPositiveSum(rows, "location", "reserved"), 10), {
+      title: t("chartReservedByLocation"),
+      emptyText: t("emptyReservedLocation"),
+      onClick: label => setFilter("#locationFilter", label)
+    });
+    drawHorizontalBarChart($("#lowStockProductsChart"), lowestAvailableProducts(rows, 10), {
+      title: t("chartLowStockProducts"),
+      emptyText: t("emptyLowStockProducts"),
+      valueFormatter: value => `${numberFormatter.format(value)}${t("unitSuffix")}`,
+      onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+    });
+    drawVerticalBarChart($("#batchCategoryChart"), topEntries(groupLotCount(rows, "category"), 12), {
+      title: t("chartBatchCountByCategory"),
+      valueFormatter: value => `${numberFormatter.format(value)} ${t("batchCount")}`,
+      emptyText: t("emptyBatchCategory"),
+      onClick: label => setFilter("#categoryFilter", label)
+    });
+    drawHorizontalBarChart($("#unitValueChart"), topUnitValueProducts(rows, 10), {
+      title: t("chartUnitValueProducts"),
+      valueFormatter: currencyFormatter.format.bind(currencyFormatter),
+      emptyText: t("emptyUnitValueProducts"),
+      onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+    });
+  }
 }
 
 function renderTable() {
@@ -864,6 +979,65 @@ function groupCount(rows, key) {
   const map = new Map();
   rows.forEach(row => map.set(row[key], (map.get(row[key]) || 0) + 1));
   return map;
+}
+
+function groupUniqueCount(rows, groupKey, uniqueKey) {
+  const map = new Map();
+  rows.forEach(row => {
+    const group = row[groupKey] || "Unspecified";
+    if (!map.has(group)) map.set(group, new Set());
+    map.get(group).add(row[uniqueKey] || "Unspecified");
+  });
+  return new Map(Array.from(map.entries()).map(([label, values]) => [label, values.size]));
+}
+
+function groupPositiveSum(rows, key, valueKey) {
+  const map = new Map();
+  rows.forEach(row => {
+    const value = Number(row[valueKey]) || 0;
+    if (value > 0) map.set(row[key], (map.get(row[key]) || 0) + value);
+  });
+  return map;
+}
+
+function groupLotCount(rows, key) {
+  const map = new Map();
+  rows.forEach(row => {
+    const lot = String(row.lot || "").trim();
+    if (!lot) return;
+    if (!map.has(row[key])) map.set(row[key], new Set());
+    map.get(row[key]).add(lot);
+  });
+  return new Map(Array.from(map.entries()).map(([label, lots]) => [label, lots.size]));
+}
+
+function lowestAvailableProducts(rows, limit) {
+  const map = new Map();
+  rows.forEach(row => {
+    const current = map.get(row.product) || { label: row.product, value: 0, onHand: 0 };
+    current.value += Number(row.available) || 0;
+    current.onHand += Number(row.onHand) || 0;
+    map.set(row.product, current);
+  });
+  return Array.from(map.values())
+    .filter(item => item.onHand > 0)
+    .sort((a, b) => a.value - b.value || a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: "base" }))
+    .slice(0, limit);
+}
+
+function topUnitValueProducts(rows, limit) {
+  const map = new Map();
+  rows.forEach(row => {
+    const current = map.get(row.product) || { label: row.product, qty: 0, valueTotal: 0 };
+    current.qty += Number(row.onHand) || Number(row.available) || 0;
+    current.valueTotal += Number(row.value) || 0;
+    map.set(row.product, current);
+  });
+  return Array.from(map.values())
+    .map(item => ({ label: item.label, value: item.qty ? item.valueTotal / item.qty : 0 }))
+    .filter(item => item.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, limit);
 }
 
 function topEntries(group, limit) {
@@ -1078,6 +1252,7 @@ function drawDoughnutChart(canvas, data, options) {
   drawTitle(ctx, options.title, width);
   if (!data.length) return drawEmpty(ctx, options.emptyText, width, height);
   const total = data.reduce((t, item) => t + item.value, 0);
+  if (!total) return drawEmpty(ctx, options.emptyText, width, height);
   const radius = Math.min(width * 0.24, height * 0.31, 105);
   const cx = Math.max(radius + 32, width * 0.34);
   const cy = height * 0.55;
@@ -1090,7 +1265,7 @@ function drawDoughnutChart(canvas, data, options) {
     ctx.closePath();
     ctx.fillStyle = item.color || palette[index % palette.length];
     ctx.fill();
-    canvas._hitboxes.push({ cx, cy, radius, start: angle, end: angle + slice, label: item.label, value: item.value, text: `${statusLabel(item.label)}: ${numberFormatter.format(item.value)}${options.valueSuffix || ""} (${Math.round(item.value / total * 100)}%)`, onClick: options.onClick, arc: true });
+    canvas._hitboxes.push({ cx, cy, radius, start: angle, end: angle + slice, label: item.label, value: item.value, text: `${statusLabel(item.label)}: ${numberFormatter.format(item.value)}${options.valueSuffix || ""} (${total ? Math.round(item.value / total * 100) : 0}%)`, onClick: options.onClick, arc: true });
     angle += slice;
   });
   ctx.beginPath();

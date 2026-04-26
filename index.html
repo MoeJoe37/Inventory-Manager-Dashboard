@@ -98,13 +98,28 @@
         <article class="kpi-card hidden-kpi"><span>Reserved</span><strong id="kpiReserved">0</strong><small>Reserved</small></article>
       </section>
 
-      <section class="charts-grid">
-        <article class="chart-card"><canvas id="valueCategoryChart"></canvas></article>
-        <article class="chart-card"><canvas id="categoryCountChart"></canvas></article>
-        <article class="chart-card"><canvas id="locationQtyChart"></canvas></article>
-        <article class="chart-card"><canvas id="topProductsChart"></canvas></article>
-        <article class="chart-card"><canvas id="stockStatusChart"></canvas></article>
-        <article class="chart-card"><canvas id="removalTimelineChart"></canvas></article>
+      <section class="charts-section" aria-label="Inventory charts">
+        <div class="charts-grid">
+          <article class="chart-card"><canvas id="valueCategoryChart"></canvas></article>
+          <article class="chart-card"><canvas id="categoryCountChart"></canvas></article>
+          <article class="chart-card"><canvas id="locationQtyChart"></canvas></article>
+          <article class="chart-card"><canvas id="topProductsChart"></canvas></article>
+          <article class="chart-card"><canvas id="stockStatusChart"></canvas></article>
+          <article class="chart-card"><canvas id="removalTimelineChart"></canvas></article>
+        </div>
+        <div class="charts-actions">
+          <button id="toggleChartsBtn" class="pill-btn primary" type="button" data-i18n="moreCharts">عرض المزيد من الرسوم</button>
+        </div>
+        <div id="extraChartsGrid" class="charts-grid extra-charts" hidden>
+          <article class="chart-card"><canvas id="valueLocationChart"></canvas></article>
+          <article class="chart-card"><canvas id="availableReservedCategoryChart"></canvas></article>
+          <article class="chart-card"><canvas id="skuCategoryChart"></canvas></article>
+          <article class="chart-card"><canvas id="uomChart"></canvas></article>
+          <article class="chart-card"><canvas id="reservedLocationChart"></canvas></article>
+          <article class="chart-card"><canvas id="lowStockProductsChart"></canvas></article>
+          <article class="chart-card"><canvas id="batchCategoryChart"></canvas></article>
+          <article class="chart-card"><canvas id="unitValueChart"></canvas></article>
+        </div>
       </section>
 
       <section class="table-panel">

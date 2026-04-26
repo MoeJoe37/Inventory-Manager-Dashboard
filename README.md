@@ -4,11 +4,12 @@ A fully browser-based inventory dashboard for XLSX / CSV stock files, including 
 
 ## What changed in this version
 
-- Moved **Import file**, **XLSX template**, and **CSV template** into the **Settings** menu.
-- Removed the topbar import/template buttons so the dashboard takes less vertical and horizontal space.
-- Kept the empty first-run screen with quick import/template buttons.
-- Made the import success message a temporary floating toast instead of a page section that pushes the dashboard down.
-- Improved chart rendering in light mode by forcing canvas redraws after theme changes and applying theme-aware canvas backgrounds/colors.
+- Made the dashboard more compact and responsive so it fits the page better at normal browser zoom.
+- Added a **See more charts** button under the main chart area.
+- Added detailed extra charts for value by location, available vs reserved by category, product count by category, unit-of-measure distribution, reserved quantity by location, lowest available products, batch count by category, and unit value by product.
+- Kept **Import file**, **XLSX template**, and **CSV template** inside the **Settings** menu.
+- Kept the import/start card hidden after a successful import so it does not take dashboard space.
+- Kept chart rendering working in both light mode and dark mode.
 - Kept Light/Dark mode and Arabic/English toggles in Settings.
 - Kept compatibility with the exact attached Odoo-style grouped XLSX format.
 
