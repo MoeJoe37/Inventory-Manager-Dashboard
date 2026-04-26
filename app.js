@@ -22,6 +22,26 @@ const FIELDS = {
   value: REQUIRED_COLUMNS[8]
 };
 
+const OPTIONAL_IMPORT_COLUMNS = new Set([FIELDS.removalDate]);
+const HEADER_ALIASES = {
+  [FIELDS.product]: ["Product", "المنتج"],
+  [FIELDS.category]: ["Product Category", "Category", "فئة المنتج"],
+  [FIELDS.location]: ["Location", "الموقع"],
+  [FIELDS.lot]: ["Lot/Serial Number", "Lot / Serial Number", "Lot/Serial", "Serial Number", "Batch / Serial", "رقم الدفعة/الرقم التسلسلي", "رقم الدفعة / الرقم التسلسلي"],
+  [FIELDS.removalDate]: ["Removal Date", "Removal date", "Removal Date To", "Removal Date From", "تاريخ الإزالة"],
+  [FIELDS.onHand]: ["Inventoried Quantity", "On Hand Quantity", "On-hand Quantity", "Quantity On Hand", "الكمية في المخزون"],
+  [FIELDS.available]: ["Available Quantity", "الكمية المتوفرة"],
+  [FIELDS.uom]: ["Unit of Measure", "UoM", "UOM", "وحدة القياس"],
+  [FIELDS.value]: ["Value", "القيمة"]
+};
+
+const IGNORED_IMPORT_COLUMNS = new Set([
+  "Company",
+  "Company Name",
+  "الشركة",
+  "اسم الشركة"
+]);
+
 const I18N = {
   ar: {
     appTitle: "لوحة مراقبة المخزون — EC 📊",
@@ -996,12 +1016,16 @@ function matrixToRows(matrix) {
     .filter(item => item.row.some(cell => String(cell ?? "").trim() !== ""));
   if (!rowsWithNumbers.length) throw new Error("The imported file is empty.");
   const headerIndex = findHeaderRowIndex(rowsWithNumbers);
-  if (headerIndex < 0) throw new Error(`The required header row was not found. Expected columns: ${REQUIRED_COLUMNS.join("، ")}`);
+  if (headerIndex < 0) throw new Error(`The required header row was not found. Supported formats: Arabic stock.quant export, Arabic stock.quant export with company column, or English stock.quant export with company column.`);
   const headerRow = rowsWithNumbers[headerIndex];
-  const headers = headerRow.row.map(normalizeHeader);
-  const missingColumns = REQUIRED_COLUMNS.filter(required => !headers.includes(normalizeHeader(required)));
+  const headers = headerRow.row.map(canonicalHeader);
+  const mandatoryColumns = REQUIRED_COLUMNS.filter(column => !OPTIONAL_IMPORT_COLUMNS.has(column));
+  const missingColumns = mandatoryColumns.filter(required => !headers.includes(required));
   if (missingColumns.length) throw new Error(`Missing required column(s): ${missingColumns.join("، ")}`);
-  const indexByHeader = new Map(headers.map((header, index) => [header, index]));
+  const indexByHeader = new Map();
+  headers.forEach((header, index) => {
+    if (!indexByHeader.has(header)) indexByHeader.set(header, index);
+  });
   const sourceRows = rowsWithNumbers.slice(headerIndex + 1).map(item => ({ raw: requiredRawFromRow(item.row, indexByHeader), rowNumber: item.rowNumber }));
   const groupedFormat = detectGroupedOdooFormat(sourceRows);
   const importMeta = {
@@ -1035,19 +1059,22 @@ function matrixToRows(matrix) {
 }
 
 function findHeaderRowIndex(rowsWithNumbers) {
-  const required = REQUIRED_COLUMNS.map(normalizeHeader);
+  const required = REQUIRED_COLUMNS.filter(column => !OPTIONAL_IMPORT_COLUMNS.has(column));
   let best = { index: -1, score: 0 };
   rowsWithNumbers.slice(0, 30).forEach((item, index) => {
-    const headers = item.row.map(normalizeHeader);
+    const headers = item.row.map(canonicalHeader);
     const score = required.filter(column => headers.includes(column)).length;
     if (score > best.score) best = { index, score };
   });
-  return best.score === required.length ? best.index : -1;
+  return best.score >= required.length ? best.index : -1;
 }
 
 function requiredRawFromRow(row, indexByHeader) {
   const raw = {};
-  REQUIRED_COLUMNS.forEach(column => raw[column] = row[indexByHeader.get(normalizeHeader(column))] ?? "");
+  REQUIRED_COLUMNS.forEach(column => {
+    const index = indexByHeader.get(column);
+    raw[column] = index === undefined ? "" : row[index] ?? "";
+  });
   return raw;
 }
 
@@ -2507,6 +2534,29 @@ function cleanText(value) {
 
 function normalizeHeader(value) {
   return cleanText(value).replace(/^\ufeff/, "").replace(/[\u200e\u200f]/g, "");
+}
+
+
+function normalizeHeaderKey(value) {
+  return normalizeHeader(value).toLowerCase().replace(/\s*\/\s*/g, "/").replace(/\s+/g, " ").trim();
+}
+
+function canonicalHeader(value) {
+  const key = normalizeHeaderKey(value);
+  if (!key) return "";
+  const aliasMap = getHeaderAliasMap();
+  return aliasMap.get(key) || normalizeHeader(value);
+}
+
+function getHeaderAliasMap() {
+  if (getHeaderAliasMap.cache) return getHeaderAliasMap.cache;
+  const map = new Map();
+  Object.entries(HEADER_ALIASES).forEach(([canonical, aliases]) => {
+    [canonical, ...aliases].forEach(alias => map.set(normalizeHeaderKey(alias), canonical));
+  });
+  IGNORED_IMPORT_COLUMNS.forEach(alias => map.set(normalizeHeaderKey(alias), "__ignored_company__"));
+  getHeaderAliasMap.cache = map;
+  return map;
 }
 
 function normalizeDigits(text) {

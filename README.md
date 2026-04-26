@@ -4,15 +4,11 @@ A fully browser-based inventory dashboard for XLSX / CSV stock files, including 
 
 ## What changed in this version
 
-- Fixed the startup issue caused by the optional KPI renderer.
-- The dashboard now loads normally again after adding the chart selector.
-- Removed **Removal date from** and **Removal date to** from the **More options** area.
-- Kept the **Select charts** dropdown:
-  - `Value by category` stays visible by default.
-  - `Quantity distribution by category` stays visible by default.
-  - All other charts start disabled and can be multi-selected manually.
-- Kept compact money labels on money charts, for example `10M`, `1B`, and `155.5M`.
-- Kept expandable chart buttons, clickable KPI cards, optional KPIs, export, search, filters, light/dark mode, Arabic/English support, and grouped Odoo import support.
+- Added support for the new English Odoo `stock.quant` export format.
+- Added support for the Arabic Odoo `stock.quant` export that includes the extra company column.
+- The optional `Company` / `الشركة` / `Company Name` field is ignored during import and is not required.
+- `Removal date` remains supported when present, but the importer can now load files that do not include it.
+- Kept compact money labels on money charts, expandable chart buttons, clickable KPI cards, optional KPIs, export, search, filters, light/dark mode, Arabic/English UI support, column hiding/resizing, and grouped Odoo summary-row skipping.
 
 ## How to use
 
@@ -26,19 +22,23 @@ A fully browser-based inventory dashboard for XLSX / CSV stock files, including 
 8. Click any KPI card to inspect the rows referenced by that KPI.
 9. Use **Export XLSX** or **Export CSV** to export the currently filtered result.
 
-## Required import headers
+## Supported import headers
 
-The importer expects these Arabic headers because they match the Odoo export format:
+The importer supports these Arabic and English Odoo `stock.quant` headers:
 
-- المنتج
-- فئة المنتج
-- الموقع
-- رقم الدفعة/الرقم التسلسلي
-- تاريخ الإزالة
-- الكمية في المخزون
-- الكمية المتوفرة
-- وحدة القياس
-- القيمة
+| Internal field | Arabic header | English header | Required |
+|---|---|---|---|
+| Product | المنتج | Product | Yes |
+| Product category | فئة المنتج | Product Category | Yes |
+| Location | الموقع | Location | Yes |
+| Lot / serial number | رقم الدفعة/الرقم التسلسلي | Lot/Serial Number | Yes |
+| Removal date | تاريخ الإزالة | Removal Date | No |
+| On-hand quantity | الكمية في المخزون | Inventoried Quantity / On Hand Quantity | Yes |
+| Available quantity | الكمية المتوفرة | Available Quantity | Yes |
+| Unit of measure | وحدة القياس | Unit of Measure | Yes |
+| Value | القيمة | Value | Yes |
+
+The optional company column is ignored if present. Supported company headers include `Company`, `Company Name`, `الشركة`, and `اسم الشركة`.
 
 Grouped Odoo summary rows are automatically skipped so dashboard totals do not double-count inventory.
 
