@@ -44,7 +44,7 @@ const IGNORED_IMPORT_COLUMNS = new Set([
 
 const I18N = {
   ar: {
-    appTitle: "لوحة مراقبة المخزون — EC 📊",
+    appTitle: "لوحة مراقبة المخزون — EC",
     settings: "الإعدادات",
     appearance: "المظهر",
     lightMode: "☀️ فاتح",
@@ -212,7 +212,7 @@ const I18N = {
     noRowsMatch: "لا توجد صفوف تطابق عوامل التصفية الحالية."
   },
   en: {
-    appTitle: "Inventory Monitoring Dashboard — EC 📊",
+    appTitle: "Inventory Monitoring Dashboard — EC",
     settings: "Settings",
     appearance: "Appearance",
     lightMode: "☀️ Light",

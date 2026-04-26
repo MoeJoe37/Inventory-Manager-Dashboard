@@ -72,3 +72,8 @@ No backend, database, build step, or external JavaScript library is required.
 - The Location column now shows a location-count badge when a product exists in multiple locations.
 - Clicking the badge opens a small scrollable popup showing each location with summed on-hand and available quantities.
 - Products with multiple lot/serial numbers are still combined per location inside this popup.
+
+
+## Website Icon
+
+The site includes `icon.png` and uses it as the browser tab favicon and beside the dashboard title.

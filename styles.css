@@ -972,3 +972,19 @@ body.resizing-column, body.resizing-column * {
   cursor: col-resize !important;
   user-select: none !important;
 }
+
+
+.app-title-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  white-space: nowrap;
+}
+
+.app-title-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: 8px;
+  flex: 0 0 auto;
+}
