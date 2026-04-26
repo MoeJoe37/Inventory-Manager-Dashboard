@@ -50,3 +50,10 @@ Grouped Odoo summary rows are automatically skipped so dashboard totals do not d
 - `README.md`
 
 No backend, database, build step, or external JavaScript library is required.
+
+### Table columns
+
+- Open **Columns / الأعمدة** above the table to hide or show any table column.
+- Drag the edge of any column header to resize it.
+- Double-click a column resize edge to reset that column width.
+- Column visibility and custom widths are saved in the browser.

@@ -83,6 +83,10 @@ const I18N = {
     productDetails: "تفاصيل المنتجات",
     rowsPerPage: "عدد الصفوف",
     columns: "الأعمدة",
+    showAllColumns: "إظهار الكل",
+    hideAllColumns: "إخفاء الكل",
+    resetColumnWidths: "إعادة الأحجام",
+    resizeColumnHint: "اسحب حافة عنوان العمود لتغيير الحجم. انقر مرتين على الحافة لإعادة حجم العمود.",
     next: "التالي",
     previous: "السابق",
     allCategories: "كل الفئات",
@@ -240,6 +244,10 @@ const I18N = {
     productDetails: "Product details",
     rowsPerPage: "Rows per page",
     columns: "Columns",
+    showAllColumns: "Show all",
+    hideAllColumns: "Hide all",
+    resetColumnWidths: "Reset widths",
+    resizeColumnHint: "Drag a column header edge to resize it. Double-click the edge to reset that column width.",
     next: "Next",
     previous: "Previous",
     allCategories: "All categories",
@@ -354,6 +362,22 @@ const DISPLAY_COLUMNS = [
   { key: "status", labelKey: "colStatus", type: "status" }
 ];
 
+const DEFAULT_COLUMN_WIDTHS = {
+  product: 300,
+  category: 210,
+  location: 280,
+  lot: 210,
+  removalDateText: 150,
+  onHand: 140,
+  available: 140,
+  reserved: 145,
+  uom: 125,
+  value: 150,
+  valuePerUnit: 150,
+  status: 140
+};
+
+
 const OPTIONAL_KPI_DEFINITIONS = [
   { key: "rows", labelKey: "kpiRowsOptional" },
   { key: "available", labelKey: "kpiAvailable" },
@@ -420,7 +444,8 @@ const state = {
   sortDirection: "desc",
   page: 1,
   pageSize: 25,
-  visibleColumns: new Set(DISPLAY_COLUMNS.map(column => column.key)),
+  visibleColumns: new Set(initialPreferences.visibleColumns || DISPLAY_COLUMNS.map(column => column.key)),
+  columnWidths: { ...(initialPreferences.columnWidths || {}) },
   lowStockThreshold: 5,
   qualityIssues: [],
   language: initialPreferences.language,
@@ -504,14 +529,36 @@ function bindEvents() {
 function loadPreferences() {
   try {
     const parsed = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
+    const validColumnKeys = new Set(DISPLAY_COLUMNS.map(column => column.key));
+    const visibleColumns = Array.isArray(parsed.visibleColumns)
+      ? parsed.visibleColumns.filter(key => validColumnKeys.has(key))
+      : DISPLAY_COLUMNS.map(column => column.key);
+    const columnWidths = {};
+    if (parsed.columnWidths && typeof parsed.columnWidths === "object") {
+      Object.entries(parsed.columnWidths).forEach(([key, value]) => {
+        const numericValue = Number(value);
+        if (validColumnKeys.has(key) && Number.isFinite(numericValue) && numericValue >= 70 && numericValue <= 900) {
+          columnWidths[key] = Math.round(numericValue);
+        }
+      });
+    }
     return {
       language: parsed.language === "en" ? "en" : "ar",
       theme: parsed.theme === "dark" ? "dark" : "light",
       optionalKpis: Array.isArray(parsed.optionalKpis) ? parsed.optionalKpis.filter(key => OPTIONAL_KPI_KEYS.has(key)) : [],
-      selectedCharts: Array.isArray(parsed.selectedCharts) ? parsed.selectedCharts.filter(id => OPTIONAL_CHART_IDS.has(id)) : []
+      selectedCharts: Array.isArray(parsed.selectedCharts) ? parsed.selectedCharts.filter(id => OPTIONAL_CHART_IDS.has(id)) : [],
+      visibleColumns: visibleColumns.length ? visibleColumns : DISPLAY_COLUMNS.map(column => column.key),
+      columnWidths
     };
   } catch {
-    return { language: "ar", theme: "light", optionalKpis: [], selectedCharts: [] };
+    return {
+      language: "ar",
+      theme: "light",
+      optionalKpis: [],
+      selectedCharts: [],
+      visibleColumns: DISPLAY_COLUMNS.map(column => column.key),
+      columnWidths: {}
+    };
   }
 }
 
@@ -521,7 +568,9 @@ function savePreferences() {
       language: state.language,
       theme: state.theme,
       optionalKpis: Array.from(state.visibleOptionalKpis),
-      selectedCharts: Array.from(state.selectedCharts)
+      selectedCharts: Array.from(state.selectedCharts),
+      visibleColumns: Array.from(state.visibleColumns),
+      columnWidths: state.columnWidths
     }));
   } catch {
     /* Local storage can be unavailable in hardened browser modes. */
@@ -837,9 +886,37 @@ function renderRequiredColumns() {
 function renderColumnToggles() {
   const container = $("#columnToggles");
   if (!container) return;
-  container.innerHTML = DISPLAY_COLUMNS.map(column => `
-    <label><input type="checkbox" value="${column.key}" ${state.visibleColumns.has(column.key) ? "checked" : ""}> ${escapeHtml(columnLabel(column))}</label>
-  `).join("");
+  container.innerHTML = `
+    <div class="column-menu-actions">
+      <button id="showAllColumnsBtn" type="button">${escapeHtml(t("showAllColumns"))}</button>
+      <button id="hideAllColumnsBtn" type="button">${escapeHtml(t("hideAllColumns"))}</button>
+      <button id="resetColumnWidthsBtn" type="button">${escapeHtml(t("resetColumnWidths"))}</button>
+    </div>
+    <p class="column-menu-hint">${escapeHtml(t("resizeColumnHint"))}</p>
+    ${DISPLAY_COLUMNS.map(column => `
+      <label><input type="checkbox" value="${column.key}" ${state.visibleColumns.has(column.key) ? "checked" : ""}> ${escapeHtml(columnLabel(column))}</label>
+    `).join("")}
+  `;
+  $("#showAllColumnsBtn")?.addEventListener("click", event => {
+    event.preventDefault();
+    state.visibleColumns = new Set(DISPLAY_COLUMNS.map(column => column.key));
+    savePreferences();
+    renderColumnToggles();
+    renderTable();
+  });
+  $("#hideAllColumnsBtn")?.addEventListener("click", event => {
+    event.preventDefault();
+    state.visibleColumns = new Set(["product"]);
+    savePreferences();
+    renderColumnToggles();
+    renderTable();
+  });
+  $("#resetColumnWidthsBtn")?.addEventListener("click", event => {
+    event.preventDefault();
+    state.columnWidths = {};
+    savePreferences();
+    renderTable();
+  });
   $$("#columnToggles input").forEach(input => {
     input.addEventListener("change", event => {
       if (event.target.checked) state.visibleColumns.add(event.target.value);
@@ -848,6 +925,7 @@ function renderColumnToggles() {
         state.visibleColumns.add("product");
         event.target.checked = true;
       }
+      savePreferences();
       renderTable();
     });
   });
@@ -1414,14 +1492,80 @@ function renderTable() {
   const start = (state.page - 1) * state.pageSize;
   const pageRows = state.filteredRows.slice(start, start + state.pageSize);
   table.innerHTML = `
-    <thead><tr>${visible.map(column => `<th class="sortable ${column.rtl ? "rtl" : ""}" data-key="${column.key}">${escapeHtml(columnLabel(column))} ${sortIndicator(column.key)}</th>`).join("")}</tr></thead>
+    <colgroup>${visible.map(column => `<col data-key="${column.key}" style="width:${columnWidth(column)}px">`).join("")}</colgroup>
+    <thead><tr>${visible.map(column => `
+      <th class="sortable resizable-column ${column.rtl ? "rtl" : ""}" data-key="${column.key}" style="width:${columnWidth(column)}px">
+        <span class="th-content"><span class="th-label">${escapeHtml(columnLabel(column))}</span><span class="sort-indicator">${sortIndicator(column.key)}</span></span>
+        <span class="column-resize-handle" data-key="${column.key}" title="${escapeHtml(t("resizeColumnHint"))}" aria-hidden="true"></span>
+      </th>`).join("")}</tr></thead>
     <tbody>${pageRows.map(row => `<tr>${visible.map(column => `<td class="${column.rtl ? "rtl" : ""}">${formatCell(row, column)}</td>`).join("")}</tr>`).join("")}</tbody>
   `;
-  $$(`#inventoryTable th.sortable`).forEach(th => th.addEventListener("click", () => changeSort(th.dataset.key)));
+  $$(`#inventoryTable th.sortable`).forEach(th => th.addEventListener("click", event => {
+    if (event.target.closest(".column-resize-handle")) return;
+    changeSort(th.dataset.key);
+  }));
+  setupColumnResizing();
   $("#tableInfo").textContent = t("tableInfo", { shown: numberFormatter.format(state.filteredRows.length), total: numberFormatter.format(state.productTotals ? aggregateRowsByProduct(state.rows).length : state.rows.length) });
   $("#pageInfo").textContent = t("pageInfo", { page: numberFormatter.format(state.page), pages: numberFormatter.format(pages) });
   $("#prevPageBtn").disabled = state.page <= 1;
   $("#nextPageBtn").disabled = state.page >= pages;
+}
+
+function columnWidth(column) {
+  const saved = Number(state.columnWidths?.[column.key]);
+  if (Number.isFinite(saved) && saved >= 70) return Math.round(saved);
+  return DEFAULT_COLUMN_WIDTHS[column.key] || 140;
+}
+
+function setupColumnResizing() {
+  $$("#inventoryTable .column-resize-handle").forEach(handle => {
+    handle.addEventListener("pointerdown", startColumnResize);
+    handle.addEventListener("dblclick", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      delete state.columnWidths[event.currentTarget.dataset.key];
+      savePreferences();
+      renderTable();
+    });
+  });
+}
+
+function startColumnResize(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const key = event.currentTarget.dataset.key;
+  const header = event.currentTarget.closest("th");
+  if (!key || !header) return;
+  const startX = event.clientX;
+  const startWidth = header.getBoundingClientRect().width;
+  document.body.classList.add("resizing-column");
+
+  const move = moveEvent => {
+    const delta = isRtl() ? startX - moveEvent.clientX : moveEvent.clientX - startX;
+    const width = Math.round(Math.min(760, Math.max(80, startWidth + delta)));
+    state.columnWidths[key] = width;
+    applyColumnWidth(key, width);
+  };
+
+  const stop = () => {
+    document.body.classList.remove("resizing-column");
+    document.removeEventListener("pointermove", move);
+    document.removeEventListener("pointerup", stop);
+    document.removeEventListener("pointercancel", stop);
+    savePreferences();
+  };
+
+  document.addEventListener("pointermove", move);
+  document.addEventListener("pointerup", stop, { once: true });
+  document.addEventListener("pointercancel", stop, { once: true });
+}
+
+function applyColumnWidth(key, width) {
+  const table = $("#inventoryTable");
+  if (!table) return;
+  table.querySelectorAll(`[data-key="${key}"]`).forEach(element => {
+    if (element.tagName === "COL" || element.tagName === "TH") element.style.width = width + "px";
+  });
 }
 
 function formatCell(row, column) {

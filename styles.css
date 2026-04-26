@@ -776,3 +776,85 @@ body.dark .status-dated { color: #ddd6fe; background: rgba(124,58,237,.18); }
   table { min-width: 860px; }
   .pagination { flex-wrap: wrap; }
 }
+
+/* Table column controls and resizing */
+.column-menu-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.column-menu-actions button {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 7px 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.column-menu-actions button:hover { border-color: rgba(37, 99, 235, .45); color: var(--primary); }
+.column-menu-hint {
+  margin: 0 0 8px;
+  padding: 8px 9px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: .76rem;
+  line-height: 1.45;
+}
+#inventoryTable { table-layout: fixed; }
+#inventoryTable th, #inventoryTable td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#inventoryTable th.resizable-column {
+  position: sticky;
+  user-select: none;
+}
+#inventoryTable .th-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+#inventoryTable .th-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#inventoryTable .sort-indicator {
+  flex: 0 0 auto;
+  color: var(--primary);
+}
+.column-resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  inset-inline-end: -4px;
+  width: 10px;
+  z-index: 6;
+  cursor: col-resize;
+  touch-action: none;
+}
+.column-resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 18%;
+  bottom: 18%;
+  inset-inline-start: 4px;
+  width: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background .16s ease, box-shadow .16s ease;
+}
+.column-resize-handle:hover::after,
+body.resizing-column .column-resize-handle::after {
+  background: var(--primary);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, .12);
+}
+body.resizing-column, body.resizing-column * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
