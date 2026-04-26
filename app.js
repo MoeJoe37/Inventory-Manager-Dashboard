@@ -498,6 +498,7 @@ const state = {
 const palette = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#22c55e", "#06b6d4", "#f97316", "#64748b", "#ec4899", "#84cc16", "#0ea5e9"];
 const statusColors = { Ready: "#22c55e", Low: "#f59e0b", Negative: "#e11d48", Out: "#ef4444", Reserved: "#2563eb", Dated: "#8b5cf6" };
 let messageTimeoutId = null;
+let activeLocationPopoverButton = null;
 const $ = selector => document.querySelector(selector);
 const $$ = selector => Array.from(document.querySelectorAll(selector));
 let numberFormatter = new Intl.NumberFormat(getLocale(), { maximumFractionDigits: 2 });
@@ -527,8 +528,8 @@ function bindEvents() {
   $("#langEnBtn")?.addEventListener("click", () => setLanguage("en"));
   document.addEventListener("click", closeSettingsWhenClickingOutside);
   document.addEventListener("click", closeLocationPopoverWhenClickingOutside);
-  window.addEventListener("resize", debounce(() => { positionSettingsPanel(); closeLocationPopover(); }, 80));
-  window.addEventListener("scroll", debounce(() => { positionSettingsPanel(); closeLocationPopover(); }, 80), true);
+  window.addEventListener("resize", debounce(handleViewportChange, 80));
+  window.addEventListener("scroll", debounce(handleViewportChange, 80), true);
   $("#fileInput").addEventListener("change", event => handleFileImport(event.target.files[0]));
   $("#templateXlsxBtn").addEventListener("click", () => downloadXlsx("inventory_import_template.xlsx", SAMPLE_ROWS));
   $("#templateCsvBtn").addEventListener("click", () => downloadCsv("inventory_import_template.csv", SAMPLE_ROWS));
@@ -1768,6 +1769,7 @@ function ensureLocationPopover() {
 }
 
 function showLocationPopover(button) {
+  activeLocationPopoverButton = button;
   const product = button.dataset.product || "";
   const details = getProductLocationDetails(product);
   const popover = ensureLocationPopover();
@@ -1817,6 +1819,19 @@ function positionLocationPopover(button, popover) {
 function closeLocationPopover() {
   const popover = $("#locationPopover");
   if (popover) popover.hidden = true;
+  activeLocationPopoverButton = null;
+}
+
+function handleViewportChange(event) {
+  positionSettingsPanel();
+  const popover = $("#locationPopover");
+  if (!popover || popover.hidden || !activeLocationPopoverButton) return;
+
+  // Do not close the locations popup on scroll. Users need to scroll inside
+  // the popup list; it should only close from the X button or an outside click.
+  if (document.body.contains(activeLocationPopoverButton)) {
+    positionLocationPopover(activeLocationPopoverButton, popover);
+  }
 }
 
 function closeLocationPopoverWhenClickingOutside(event) {
