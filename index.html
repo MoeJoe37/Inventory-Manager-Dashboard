@@ -69,10 +69,12 @@
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
           <input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="بحث عن منتج أو موقع أو رقم دفعة أو فئة...">
+          <div id="searchTags" class="search-tags" aria-live="polite"></div>
         </div>
         <select id="locationFilter" aria-label="كل الفروع / المواقع"></select>
         <select id="categoryFilter" aria-label="كل الفئات"></select>
         <select id="statusFilter" aria-label="كل الحالات"></select>
+        <select id="removalDateFilter" aria-label="تصفية تاريخ الإزالة"></select>
         <select id="uomFilter" aria-label="كل وحدات القياس"></select>
         <button id="productTotalsToggle" class="pill-btn toggle-filter" type="button" aria-pressed="false" data-i18n="productTotals">🧮 إجمالي كل منتج</button>
         <button id="exportCsvBtn" class="pill-btn primary" type="button" data-i18n="exportCsv">⬇ تصدير CSV</button>

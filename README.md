@@ -77,3 +77,11 @@ No backend, database, build step, or external JavaScript library is required.
 ## Website Icon
 
 The site includes `icon.png` and uses it as the browser tab favicon and beside the dashboard title.
+
+
+## Version 23 Updates
+
+- `Has removal date` is now a dedicated filter instead of a stock status.
+- Rows with removal dates now receive their normal inventory status based on quantity/reserved/low-stock data.
+- The status filter now contains only actual stock states: Available, Low stock, Negative stock, Reserved, and Out of stock.
+- Search now supports multiple search tags. Type a value and press Enter to add it as a tag; remove any tag with its × button.

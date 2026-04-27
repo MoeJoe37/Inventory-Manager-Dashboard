@@ -59,7 +59,11 @@ const I18N = {
     importWorking: "جارٍ استيراد الملف...",
     renderWarning: "تم تحميل البيانات، لكن حدث خطأ أثناء رسم بعض عناصر اللوحة. تم عرض الجدول والبيانات الأساسية.",
     downloadTemplate: "تنزيل القالب",
-    searchPlaceholder: "بحث عن منتج أو موقع أو رقم دفعة أو فئة...",
+    searchPlaceholder: "اكتب قيمة ثم اضغط Enter لإضافتها كتصفية بحث...",
+    searchTagRemove: "إزالة",
+    allRemovalDates: "كل تواريخ الإزالة",
+    removalDateHas: "له تاريخ إزالة",
+    removalDateMissing: "بدون تاريخ إزالة",
     exportCsv: "⬇ تصدير CSV",
     exportXlsx: "⬇ تصدير XLSX",
     resetFilters: "إعادة التصفية",
@@ -227,7 +231,11 @@ const I18N = {
     importWorking: "Importing file...",
     renderWarning: "Data was loaded, but part of the dashboard failed to render. The table and core data were still displayed.",
     downloadTemplate: "Download template",
-    searchPlaceholder: "Search product, location, batch/serial, or category...",
+    searchPlaceholder: "Type a value, then press Enter to add it as a search filter...",
+    searchTagRemove: "Remove",
+    allRemovalDates: "All removal dates",
+    removalDateHas: "Has removal date",
+    removalDateMissing: "No removal date",
     exportCsv: "⬇ Export CSV",
     exportXlsx: "⬇ Export XLSX",
     resetFilters: "Reset filters",
@@ -491,12 +499,13 @@ const state = {
   expandedChartId: null,
   quickView: null,
   productTotals: false,
+  searchTags: [],
   visibleOptionalKpis: new Set(initialPreferences.optionalKpis || []),
   selectedCharts: new Set(initialPreferences.selectedCharts || [])
 };
 
 const palette = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#22c55e", "#06b6d4", "#f97316", "#64748b", "#ec4899", "#84cc16", "#0ea5e9"];
-const statusColors = { Ready: "#22c55e", Low: "#f59e0b", Negative: "#e11d48", Out: "#ef4444", Reserved: "#2563eb", Dated: "#8b5cf6" };
+const statusColors = { Ready: "#22c55e", Low: "#f59e0b", Negative: "#e11d48", Out: "#ef4444", Reserved: "#2563eb" };
 let messageTimeoutId = null;
 let activeLocationPopoverButton = null;
 const $ = selector => document.querySelector(selector);
@@ -534,6 +543,8 @@ function bindEvents() {
   $("#templateXlsxBtn").addEventListener("click", () => downloadXlsx("inventory_import_template.xlsx", SAMPLE_ROWS));
   $("#templateCsvBtn").addEventListener("click", () => downloadCsv("inventory_import_template.csv", SAMPLE_ROWS));
   $("#searchInput").addEventListener("input", () => { state.page = 1; applyFilters(); });
+  $("#searchInput").addEventListener("keydown", handleSearchInputKeydown);
+  $("#searchTags")?.addEventListener("click", handleSearchTagClick);
   $("#categoryFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#locationFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#uomFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
@@ -544,6 +555,7 @@ function bindEvents() {
     applyFilters();
   });
   $("#statusFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
+  $("#removalDateFilter")?.addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#dateFrom")?.addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#dateTo")?.addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#lowStockThreshold").addEventListener("input", () => { state.lowStockThreshold = Math.max(0, parseNumber($("#lowStockThreshold").value)); updateStatuses(); applyFilters(); });
@@ -674,6 +686,7 @@ function setLanguage(language, persist = true) {
   document.documentElement.dir = isRtl() ? "rtl" : "ltr";
   document.querySelectorAll("[data-i18n]").forEach(element => element.textContent = t(element.dataset.i18n));
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
+  renderSearchTags();
   updateSettingsUi();
   updateProductTotalsToggle();
   requestAnimationFrame(positionSettingsPanel);
@@ -1182,14 +1195,14 @@ function normalizeInventoryRow(raw, sourceRow) {
     searchText: ""
   };
   row.status = getStatus(row);
-  row.searchText = [row.product, row.category, row.location, row.lot, row.uom, row.status, row.removalDateText].join(" ").toLowerCase();
+  row.searchText = buildSearchText(row);
   return row;
 }
 
 function updateStatuses() {
   state.rows.forEach(row => {
     row.status = getStatus(row);
-    row.searchText = [row.product, row.category, row.location, row.lot, row.uom, row.status, row.removalDateText].join(" ").toLowerCase();
+    row.searchText = buildSearchText(row);
   });
 }
 
@@ -1198,7 +1211,6 @@ function getStatus(row) {
   if (row.onHand <= 0 || row.available <= 0) return "Out";
   if (row.reserved > 0) return "Reserved";
   if (row.available <= state.lowStockThreshold) return "Low";
-  if (row.removalDate) return "Dated";
   return "Ready";
 }
 
@@ -1209,8 +1221,15 @@ function updateFilterOptions() {
   fillSelect("#uomFilter", t("allUoms"), uniqueValues(state.rows, "uom"));
   const status = $("#statusFilter");
   const current = status.value;
-  status.innerHTML = `<option value="">${escapeHtml(t("allStatuses"))}</option><option value="Ready">${escapeHtml(statusLabel("Ready"))}</option><option value="Low">${escapeHtml(statusLabel("Low"))}</option><option value="Negative">${escapeHtml(statusLabel("Negative"))}</option><option value="Reserved">${escapeHtml(statusLabel("Reserved"))}</option><option value="Out">${escapeHtml(statusLabel("Out"))}</option><option value="Dated">${escapeHtml(statusLabel("Dated"))}</option>`;
+  status.innerHTML = `<option value="">${escapeHtml(t("allStatuses"))}</option><option value="Ready">${escapeHtml(statusLabel("Ready"))}</option><option value="Low">${escapeHtml(statusLabel("Low"))}</option><option value="Negative">${escapeHtml(statusLabel("Negative"))}</option><option value="Reserved">${escapeHtml(statusLabel("Reserved"))}</option><option value="Out">${escapeHtml(statusLabel("Out"))}</option>`;
   if ([...status.options].some(option => option.value === current)) status.value = current;
+
+  const removal = $("#removalDateFilter");
+  if (removal) {
+    const removalCurrent = removal.value;
+    removal.innerHTML = `<option value="">${escapeHtml(t("allRemovalDates"))}</option><option value="has">${escapeHtml(t("removalDateHas"))}</option><option value="missing">${escapeHtml(t("removalDateMissing"))}</option>`;
+    if ([...removal.options].some(option => option.value === removalCurrent)) removal.value = removalCurrent;
+  }
 }
 
 function fillSelect(selector, placeholder, values) {
@@ -1218,20 +1237,105 @@ function fillSelect(selector, placeholder, values) {
   select.innerHTML = `<option value="">${escapeHtml(placeholder)}</option>` + values.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
 }
 
+
+function handleSearchInputKeydown(event) {
+  const input = event.currentTarget;
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const raw = input.value.trim();
+    if (!raw) return;
+    addSearchTag(raw);
+    input.value = "";
+    return;
+  }
+
+  if (event.key === "Backspace" && !input.value && state.searchTags.length) {
+    state.searchTags.pop();
+    renderSearchTags();
+    state.page = 1;
+    applyFilters();
+  }
+}
+
+function splitSearchTagInput(value) {
+  return String(value || "")
+    .split(/[,;،\n]+/)
+    .map(part => part.trim())
+    .filter(Boolean);
+}
+
+function addSearchTag(value) {
+  const terms = splitSearchTagInput(value);
+  if (!terms.length) return;
+  const existing = new Set(state.searchTags.map(tag => tag.toLowerCase()));
+  terms.forEach(term => {
+    const normalized = term.toLowerCase();
+    if (!existing.has(normalized)) {
+      state.searchTags.push(term);
+      existing.add(normalized);
+    }
+  });
+  renderSearchTags();
+  state.page = 1;
+  applyFilters();
+}
+
+function removeSearchTag(index) {
+  state.searchTags.splice(index, 1);
+  renderSearchTags();
+  state.page = 1;
+  applyFilters();
+}
+
+function handleSearchTagClick(event) {
+  const button = event.target.closest("[data-remove-search-tag]");
+  if (!button) return;
+  removeSearchTag(Number(button.dataset.removeSearchTag));
+}
+
+function renderSearchTags() {
+  const container = $("#searchTags");
+  if (!container) return;
+  container.innerHTML = state.searchTags.map((tag, index) => `
+    <button class="search-tag" type="button" data-remove-search-tag="${index}" title="${escapeHtml(t("searchTagRemove"))}">
+      <span>${escapeHtml(tag)}</span>
+      <strong aria-hidden="true">×</strong>
+    </button>
+  `).join("");
+}
+
+function buildSearchText(row) {
+  return [
+    row.product,
+    row.category,
+    row.location,
+    row.lot,
+    row.uom,
+    row.status,
+    statusLabel(row.status),
+    row.removalDateText,
+    row.removalDate ? t("removalDateHas") : ""
+  ].join(" ").toLowerCase();
+}
+
 function applyFilters() {
-  const search = $("#searchInput").value.trim().toLowerCase();
+  const pendingSearch = $("#searchInput").value.trim().toLowerCase();
+  const searchTerms = [...state.searchTags.map(value => value.toLowerCase()), ...(pendingSearch ? [pendingSearch] : [])];
   const category = $("#categoryFilter").value;
   const location = $("#locationFilter").value;
   const uom = $("#uomFilter").value;
   const status = $("#statusFilter").value;
+  const removalDateFilter = $("#removalDateFilter")?.value || "";
   const dateFrom = parseDate($("#dateFrom")?.value || "");
   const dateTo = parseDate($("#dateTo")?.value || "");
 
   let workingRows = state.rows.filter(row => {
-    if (search && !row.searchText.includes(search)) return false;
+    if (searchTerms.length && !searchTerms.every(term => row.searchText.includes(term))) return false;
     if (category && row.category !== category) return false;
     if (location && row.location !== location) return false;
     if (uom && row.uom !== uom) return false;
+    if (removalDateFilter === "has" && !row.removalDate) return false;
+    if (removalDateFilter === "missing" && row.removalDate) return false;
     if (dateFrom && (!row.removalDate || row.removalDate < dateFrom)) return false;
     if (dateTo && (!row.removalDate || row.removalDate > dateTo)) return false;
     return true;
@@ -1256,10 +1360,13 @@ function applyFilters() {
 function resetFilterControls() {
   state.quickView = null;
   $("#searchInput").value = "";
+  state.searchTags = [];
+  renderSearchTags();
   $("#categoryFilter").value = "";
   $("#locationFilter").value = "";
   $("#uomFilter").value = "";
   $("#statusFilter").value = "";
+  if ($("#removalDateFilter")) $("#removalDateFilter").value = "";
   state.productTotals = false;
   updateProductTotalsToggle();
   if ($("#dateFrom")) $("#dateFrom").value = "";
@@ -1305,6 +1412,8 @@ function clearData() {
   state.lastUpdatedFileName = "";
   state.showMoreCharts = false;
   state.quickView = null;
+  state.searchTags = [];
+  renderSearchTags();
   state.productTotals = false;
   updateProductTotalsToggle();
   updateMoreChartsUi();
@@ -1332,9 +1441,12 @@ function applyKpiQuickView(kind) {
   if (!state.rows.length || !kind) return;
   state.quickView = kind;
   $("#searchInput").value = "";
+  state.searchTags = [];
+  renderSearchTags();
   $("#categoryFilter").value = "";
   $("#locationFilter").value = "";
   $("#uomFilter").value = "";
+  if ($("#removalDateFilter")) $("#removalDateFilter").value = kind === "dated" ? "has" : "";
   if ($("#dateFrom")) $("#dateFrom").value = "";
   if ($("#dateTo")) $("#dateTo").value = "";
   $("#statusFilter").value = { low: "Low", negative: "Negative", out: "Out" }[kind] || "";
@@ -1345,9 +1457,11 @@ function applyKpiQuickView(kind) {
 
 function clearStockQuickView() {
   if (!state.quickView) return;
-  const statusForView = { low: "Low", negative: "Negative", out: "Out" }[state.quickView];
+  const previousQuickView = state.quickView;
+  const statusForView = { low: "Low", negative: "Negative", out: "Out" }[previousQuickView];
   state.quickView = null;
   if (statusForView && $("#statusFilter").value === statusForView) $("#statusFilter").value = "";
+  if (previousQuickView === "dated" && $("#removalDateFilter")?.value === "has") $("#removalDateFilter").value = "";
   state.page = 1;
   applyFilters();
 }
@@ -1514,7 +1628,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
         title: t("chartTopProducts"),
         valueFormatter: formatCompactMoney,
         emptyText: t("emptyProducts"),
-        onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+        onClick: label => addSearchTag(label)
       });
     case "stockStatusChart":
       return drawDoughnutChart(canvas, statusBreakdown(rows), {
@@ -1567,7 +1681,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
         title: t("chartLowStockProducts"),
         emptyText: t("emptyLowStockProducts"),
         valueFormatter: value => numberFormatter.format(value) + t("unitSuffix"),
-        onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+        onClick: label => addSearchTag(label)
       });
     case "batchCategoryChart":
       return drawVerticalBarChart(canvas, top(groupLotCount(rows, "category"), 8, 18), {
@@ -1581,7 +1695,7 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
         title: t("chartUnitValueProducts"),
         valueFormatter: formatCompactMoney,
         emptyText: t("emptyUnitValueProducts"),
-        onClick: label => { $("#searchInput").value = label; state.page = 1; applyFilters(); }
+        onClick: label => addSearchTag(label)
       });
   }
 }
@@ -1883,7 +1997,7 @@ function columnLabel(column) {
 }
 
 function statusLabel(status) {
-  return { Ready: t("statusReady"), Low: t("statusLow"), Negative: t("statusNegative"), Out: t("statusOut"), Reserved: t("statusReserved"), Dated: t("statusDated") }[status] || status;
+  return { Ready: t("statusReady"), Low: t("statusLow"), Negative: t("statusNegative"), Out: t("statusOut"), Reserved: t("statusReserved") }[status] || status;
 }
 
 function aggregateRowsByProduct(rows) {
@@ -1943,7 +2057,7 @@ function aggregateRowsByProduct(rows) {
       searchText: ""
     };
     row.status = getStatus(row);
-    row.searchText = [row.product, row.category, row.location, row.lot, row.uom, row.status, row.removalDateText].join(" ").toLowerCase();
+    row.searchText = buildSearchText(row);
     return row;
   });
 }
@@ -2053,7 +2167,7 @@ function topEntries(group, limit) {
 
 function statusBreakdown(rows) {
   const counts = groupCount(rows, "status");
-  return ["Ready", "Low", "Negative", "Reserved", "Out", "Dated"].map(label => ({ label, value: counts.get(label) || 0, color: statusColors[label] })).filter(item => item.value > 0);
+  return ["Ready", "Low", "Negative", "Reserved", "Out"].map(label => ({ label, value: counts.get(label) || 0, color: statusColors[label] })).filter(item => item.value > 0);
 }
 
 function removalTimeline(rows) {
