@@ -68,7 +68,8 @@
       <section class="filters-card">
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
-          <input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="بحث عن منتج أو موقع أو رقم دفعة أو فئة...">
+          <input id="searchInput" type="search" autocomplete="off" data-i18n-placeholder="searchPlaceholder" placeholder="بحث عن منتج أو موقع أو رقم دفعة أو فئة...">
+          <div id="searchSuggestions" class="search-suggestions" hidden></div>
           <div id="searchTags" class="search-tags" aria-live="polite"></div>
         </div>
         <select id="locationFilter" aria-label="كل الفروع / المواقع"></select>

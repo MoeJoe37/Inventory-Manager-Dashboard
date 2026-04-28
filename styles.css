@@ -1036,3 +1036,79 @@ body.dark .search-tag {
 body.dark .search-tag strong {
   background: rgba(255, 255, 255, .14);
 }
+
+
+.search-suggestions {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + 6px);
+  z-index: 1200;
+  display: grid;
+  gap: 4px;
+  max-height: min(320px, 45vh);
+  overflow: auto;
+  padding: 6px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, .18);
+}
+
+.search-suggestion-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--text);
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.search-suggestion-item:hover,
+.search-suggestion-item:focus-visible {
+  background: rgba(37, 99, 235, .10);
+  outline: none;
+}
+
+.search-suggestion-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 850;
+}
+
+.search-suggestion-type {
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+body.dark .search-suggestions {
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .42);
+}
+
+
+.location-popover-option {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  text-align: inherit;
+}
+
+.location-popover-option:hover,
+.location-popover-option:focus-visible {
+  background: rgba(37, 99, 235, .10);
+  outline: none;
+}
+
+.location-popover-row { font-family: inherit; }

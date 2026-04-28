@@ -85,3 +85,9 @@ The site includes `icon.png` and uses it as the browser tab favicon and beside t
 - Rows with removal dates now receive their normal inventory status based on quantity/reserved/low-stock data.
 - The status filter now contains only actual stock states: Available, Low stock, Negative stock, Reserved, and Out of stock.
 - Search now supports multiple search tags. Type a value and press Enter to add it as a tag; remove any tag with its × button.
+
+
+## v24 Updates
+
+- Added real-time search suggestions. Clicking a suggestion adds it as a removable search tag.
+- Location popup rows are clickable. Selecting a location closes the popup and applies that location in the location filter.

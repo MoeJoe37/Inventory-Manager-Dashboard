@@ -61,6 +61,14 @@ const I18N = {
     downloadTemplate: "تنزيل القالب",
     searchPlaceholder: "اكتب قيمة ثم اضغط Enter لإضافتها كتصفية بحث...",
     searchTagRemove: "إزالة",
+    searchSuggestionHint: "اضغط لإضافة هذا البحث",
+    suggestionProduct: "منتج",
+    suggestionCategory: "فئة",
+    suggestionLocation: "موقع",
+    suggestionLot: "دفعة / تسلسل",
+    suggestionUom: "وحدة قياس",
+    suggestionStatus: "حالة",
+    suggestionRemovalDate: "تاريخ إزالة",
     allRemovalDates: "كل تواريخ الإزالة",
     removalDateHas: "له تاريخ إزالة",
     removalDateMissing: "بدون تاريخ إزالة",
@@ -233,6 +241,14 @@ const I18N = {
     downloadTemplate: "Download template",
     searchPlaceholder: "Type a value, then press Enter to add it as a search filter...",
     searchTagRemove: "Remove",
+    searchSuggestionHint: "Click to add this search",
+    suggestionProduct: "Product",
+    suggestionCategory: "Category",
+    suggestionLocation: "Location",
+    suggestionLot: "Batch / serial",
+    suggestionUom: "UOM",
+    suggestionStatus: "Status",
+    suggestionRemovalDate: "Removal date",
     allRemovalDates: "All removal dates",
     removalDateHas: "Has removal date",
     removalDateMissing: "No removal date",
@@ -542,9 +558,16 @@ function bindEvents() {
   $("#fileInput").addEventListener("change", event => handleFileImport(event.target.files[0]));
   $("#templateXlsxBtn").addEventListener("click", () => downloadXlsx("inventory_import_template.xlsx", SAMPLE_ROWS));
   $("#templateCsvBtn").addEventListener("click", () => downloadCsv("inventory_import_template.csv", SAMPLE_ROWS));
-  $("#searchInput").addEventListener("input", () => { state.page = 1; applyFilters(); });
+  $("#searchInput").addEventListener("input", () => {
+    state.page = 1;
+    applyFilters();
+    updateSearchSuggestions();
+  });
+  $("#searchInput").addEventListener("focus", updateSearchSuggestions);
   $("#searchInput").addEventListener("keydown", handleSearchInputKeydown);
   $("#searchTags")?.addEventListener("click", handleSearchTagClick);
+  $("#searchSuggestions")?.addEventListener("click", handleSearchSuggestionClick);
+  document.addEventListener("click", closeSearchSuggestionsWhenClickingOutside);
   $("#categoryFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#locationFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
   $("#uomFilter").addEventListener("change", () => { state.page = 1; applyFilters(); });
@@ -687,6 +710,7 @@ function setLanguage(language, persist = true) {
   document.querySelectorAll("[data-i18n]").forEach(element => element.textContent = t(element.dataset.i18n));
   document.querySelectorAll("[data-i18n-placeholder]").forEach(element => element.placeholder = t(element.dataset.i18nPlaceholder));
   renderSearchTags();
+  updateSearchSuggestions();
   updateSettingsUi();
   updateProductTotalsToggle();
   requestAnimationFrame(positionSettingsPanel);
@@ -1246,6 +1270,12 @@ function handleSearchInputKeydown(event) {
     if (!raw) return;
     addSearchTag(raw);
     input.value = "";
+    hideSearchSuggestions();
+    return;
+  }
+
+  if (event.key === "Escape") {
+    hideSearchSuggestions();
     return;
   }
 
@@ -1254,6 +1284,7 @@ function handleSearchInputKeydown(event) {
     renderSearchTags();
     state.page = 1;
     applyFilters();
+    updateSearchSuggestions();
   }
 }
 
@@ -1285,6 +1316,7 @@ function removeSearchTag(index) {
   renderSearchTags();
   state.page = 1;
   applyFilters();
+  updateSearchSuggestions();
 }
 
 function handleSearchTagClick(event) {
@@ -1302,6 +1334,92 @@ function renderSearchTags() {
       <strong aria-hidden="true">×</strong>
     </button>
   `).join("");
+}
+
+function handleSearchSuggestionClick(event) {
+  const button = event.target.closest("[data-search-suggestion]");
+  if (!button) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const value = button.dataset.searchSuggestion || "";
+  if (!value) return;
+  addSearchTag(value);
+  const input = $("#searchInput");
+  if (input) input.value = "";
+  hideSearchSuggestions();
+}
+
+function updateSearchSuggestions() {
+  const container = $("#searchSuggestions");
+  const input = $("#searchInput");
+  if (!container || !input) return;
+  const query = input.value.trim().toLowerCase();
+  if (!query || !state.rows.length) {
+    hideSearchSuggestions();
+    return;
+  }
+
+  const suggestions = buildSearchSuggestions(query, 12);
+  if (!suggestions.length) {
+    hideSearchSuggestions();
+    return;
+  }
+
+  container.innerHTML = suggestions.map(item => `
+    <button class="search-suggestion-item" type="button"
+      data-search-suggestion="${escapeHtml(item.value)}"
+      title="${escapeHtml(t("searchSuggestionHint"))}">
+      <span class="search-suggestion-value">${escapeHtml(item.value)}</span>
+      <span class="search-suggestion-type">${escapeHtml(t(item.typeKey))}</span>
+    </button>
+  `).join("");
+  container.hidden = false;
+}
+
+function buildSearchSuggestions(query, limit = 12) {
+  const existing = new Set(state.searchTags.map(tag => tag.toLowerCase()));
+  const added = new Set();
+  const suggestions = [];
+
+  const addSuggestion = (value, typeKey) => {
+    const text = String(value ?? "").trim();
+    if (!text) return;
+    const normalized = text.toLowerCase();
+    if (existing.has(normalized) || added.has(normalized)) return;
+    if (!normalized.includes(query)) return;
+    added.add(normalized);
+    suggestions.push({
+      value: text,
+      typeKey,
+      score: (normalized.startsWith(query) ? 0 : 1) + Math.min(text.length / 1000, 0.9)
+    });
+  };
+
+  state.rows.forEach(row => {
+    addSuggestion(row.product, "suggestionProduct");
+    addSuggestion(row.category, "suggestionCategory");
+    addSuggestion(row.location, "suggestionLocation");
+    addSuggestion(row.lot, "suggestionLot");
+    addSuggestion(row.uom, "suggestionUom");
+    addSuggestion(statusLabel(row.status), "suggestionStatus");
+    addSuggestion(row.removalDateText, "suggestionRemovalDate");
+  });
+
+  return suggestions
+    .sort((a, b) => a.score - b.score || a.value.localeCompare(b.value, undefined, { numeric: true, sensitivity: "base" }))
+    .slice(0, limit);
+}
+
+function hideSearchSuggestions() {
+  const container = $("#searchSuggestions");
+  if (!container) return;
+  container.hidden = true;
+  container.innerHTML = "";
+}
+
+function closeSearchSuggestionsWhenClickingOutside(event) {
+  if (event.target.closest(".search-wrap")) return;
+  hideSearchSuggestions();
 }
 
 function buildSearchText(row) {
@@ -1362,6 +1480,7 @@ function resetFilterControls() {
   $("#searchInput").value = "";
   state.searchTags = [];
   renderSearchTags();
+  hideSearchSuggestions();
   $("#categoryFilter").value = "";
   $("#locationFilter").value = "";
   $("#uomFilter").value = "";
@@ -1414,6 +1533,7 @@ function clearData() {
   state.quickView = null;
   state.searchTags = [];
   renderSearchTags();
+  hideSearchSuggestions();
   state.productTotals = false;
   updateProductTotalsToggle();
   updateMoreChartsUi();
@@ -1443,6 +1563,7 @@ function applyKpiQuickView(kind) {
   $("#searchInput").value = "";
   state.searchTags = [];
   renderSearchTags();
+  hideSearchSuggestions();
   $("#categoryFilter").value = "";
   $("#locationFilter").value = "";
   $("#uomFilter").value = "";
@@ -1889,11 +2010,11 @@ function showLocationPopover(button) {
   const popover = ensureLocationPopover();
   const count = details.length;
   const rowsHtml = details.map(item => `
-    <div class="location-popover-row">
+    <button type="button" class="location-popover-row location-popover-option" data-location="${escapeHtml(item.location)}">
       <span class="location-popover-location" title="${escapeHtml(item.location)}">${escapeHtml(item.location)}</span>
       <span class="location-popover-number">${numberFormatter.format(item.onHand)}</span>
       <span class="location-popover-number available">${numberFormatter.format(item.available)}</span>
-    </div>`).join("");
+    </button>`).join("");
 
   popover.innerHTML = `
     <div class="location-popover-header">
@@ -1911,8 +2032,34 @@ function showLocationPopover(button) {
     event.stopPropagation();
     closeLocationPopover();
   });
+  popover.querySelectorAll("[data-location]").forEach(rowButton => {
+    rowButton.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      selectLocationFromPopover(event.currentTarget.dataset.location || "");
+    });
+  });
   popover.hidden = false;
   positionLocationPopover(button, popover);
+}
+
+function selectLocationFromPopover(location) {
+  const selectedLocation = String(location || "").trim();
+  if (!selectedLocation) return;
+  const filter = $("#locationFilter");
+  if (filter) {
+    if (![...filter.options].some(option => option.value === selectedLocation)) {
+      const option = document.createElement("option");
+      option.value = selectedLocation;
+      option.textContent = selectedLocation;
+      filter.appendChild(option);
+    }
+    filter.value = selectedLocation;
+  }
+  closeLocationPopover();
+  state.page = 1;
+  applyFilters();
+  document.querySelector(".filters-card")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function positionLocationPopover(button, popover) {
