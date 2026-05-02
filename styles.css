@@ -52,8 +52,9 @@ body {
 }
 
 button, input, select, summary { font: inherit; }
-button, summary { cursor: pointer; }
+button, summary, .pill-btn, .file-pick-label, .file-pick-label * { cursor: pointer; }
 button:disabled { opacity: .45; cursor: not-allowed; }
+.file-pick-label[aria-disabled="true"], .file-pick-label[aria-disabled="true"] * { cursor: not-allowed; }
 
 .topbar {
   min-height: 50px;
@@ -111,6 +112,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   align-items: center;
   justify-content: center;
   user-select: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.file-pick-label:hover {
+  cursor: pointer;
 }
 
 .file-pick-label[aria-disabled="true"] {
