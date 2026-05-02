@@ -52,11 +52,13 @@ const I18N = {
     language: "اللغة",
     dataActions: "الملفات",
     importFile: "📁 استيراد ملف",
+    importCompareFile: "📊 استيراد ملف مقارنة XLSX",
     templateXlsx: "⬇ قالب XLSX",
     templateCsv: "⬇ قالب CSV",
     emptySubtitle: "استورد ملف المخزون لعرض لوحة تحليل تفاعلية.",
     importXlsxCsv: "استيراد XLSX / CSV",
     importWorking: "جارٍ استيراد الملف...",
+    comparisonWorking: "جارٍ استيراد ملف المقارنة...",
     renderWarning: "تم تحميل البيانات، لكن حدث خطأ أثناء رسم بعض عناصر اللوحة. تم عرض الجدول والبيانات الأساسية.",
     downloadTemplate: "تنزيل القالب",
     searchPlaceholder: "اكتب قيمة ثم اضغط Enter لإضافتها كتصفية بحث...",
@@ -140,8 +142,13 @@ const I18N = {
     pageInfo: "صفحة {page} من {pages}",
     importSuccess: "تم استيراد {count} سجل مخزون من {file}.",
     skippedSummary: " وتم تجاهل {count} صف تجميعي لمنع تكرار الحساب.",
+    comparisonSuccess: "تمت مقارنة {count} صف/عنصر مع {file}.",
+    comparisonNeedsMain: "استورد ملف المخزون الأساسي أولًا، ثم استورد ملف XLSX للمقارنة.",
+    comparisonXlsxOnly: "ملف المقارنة يجب أن يكون بصيغة XLSX.",
     exportNoRows: "لا توجد سجلات مطابقة للتصفية الحالية للتصدير.",
+    comparisonExportEmpty: "لا توجد بيانات مقارنة للتصدير.",
     clearConfirm: "هل تريد مسح كل بيانات المخزون المستوردة من هذه الصفحة؟",
+    comparisonClearConfirm: "هل تريد مسح نتائج المقارنة فقط؟",
     chartValueByCategory: "القيمة حسب الفئة",
     chartQtyByCategory: "توزيع الكميات حسب الفئة",
     chartQtyByLocation: "الكميات حسب الموقع",
@@ -221,7 +228,137 @@ const I18N = {
     productLocationsTitle: "مواقع {product} — {count} موقع",
     locationPopupOnHand: "الموجود",
     locationPopupAvailable: "المتاح",
-    noRowsMatch: "لا توجد صفوف تطابق عوامل التصفية الحالية."
+    noRowsMatch: "لا توجد صفوف تطابق عوامل التصفية الحالية.",
+    comparisonTitle: "مقارنة بيانات المخزون",
+    comparisonEmptyHint: "استورد ملف XLSX آخر من الإعدادات لمقارنته مع البيانات الحالية.",
+    comparisonInfo: "تمت المقارنة مع {file} • {count} صف مقارنة",
+    comparisonNoRows: "لا توجد نتائج مقارنة.",
+    comparisonTableCapped: "تم عرض أول {shown} نتيجة من أصل {total}. استخدم التصدير لرؤية كل النتائج.",
+    exportComparisonCsv: "⬇ تصدير CSV",
+    exportComparisonXlsx: "⬇ تصدير XLSX",
+    clearComparison: "مسح المقارنة",
+    comparisonNew: "جديد في ملف المقارنة",
+    comparisonRemoved: "غير موجود في ملف المقارنة",
+    comparisonIncreased: "زيادة",
+    comparisonDecreased: "نقصان",
+    comparisonChanged: "تغير",
+    comparisonUnchanged: "بدون تغيير",
+    comparisonMetricRows: "صفوف المقارنة",
+    comparisonMetricChanged: "تغيرات",
+    comparisonMetricNew: "جديدة",
+    comparisonMetricRemoved: "محذوفة",
+    comparisonMetricQtyDelta: "فرق الكمية",
+    comparisonMetricValueDelta: "فرق القيمة",
+    comparisonMetricIncreased: "زيادات",
+    comparisonMetricDecreased: "نقصانات",
+    comparisonMetricUnchanged: "بدون تغيير",
+    comparisonMetricQtyChanged: "تغيرت كميتها",
+    comparisonMetricAvailableChanged: "تغير المتاح",
+    comparisonMetricReservedChanged: "تغير المحجوز",
+    comparisonMetricValueChanged: "تغيرت قيمتها",
+    comparisonMetricQtyOnly: "تغير كمية فقط",
+    comparisonMetricValueOnly: "تغير قيمة فقط",
+    comparisonMetricQtyAndValue: "تغير كمية وقيمة",
+    comparisonMetricValueGain: "زيادة قيمة",
+    comparisonMetricValueLoss: "نقصان قيمة",
+    comparisonMetricMatched: "مطابقة بين الملفين",
+    comparisonMetricBaseQty: "كمية الملف الحالي",
+    comparisonMetricCompareQty: "كمية ملف المقارنة",
+    comparisonMetricBaseValue: "قيمة الملف الحالي",
+    comparisonMetricCompareValue: "قيمة ملف المقارنة",
+    comparisonMetricQtyMovement: "حركة الكمية المطلقة",
+    comparisonMetricValueMovement: "حركة القيمة المطلقة",
+    comparisonMetricQtyPercent: "نسبة تغير الكمية",
+    comparisonMetricValuePercent: "نسبة تغير القيمة",
+    comparisonMetricAffectedProducts: "منتجات متأثرة",
+    comparisonMetricAffectedLocations: "مواقع متأثرة",
+    comparisonMetricAvailableDelta: "فرق المتاح",
+    comparisonMetricReservedDelta: "فرق المحجوز",
+    comparisonMetricAvailablePercent: "نسبة تغير المتاح",
+    comparisonMetricReservedPercent: "نسبة تغير المحجوز",
+    comparisonMetricQtyGainRows: "صفوف زيادة الكمية",
+    comparisonMetricQtyLossRows: "صفوف نقصان الكمية",
+    comparisonMetricUnitValueChanged: "تغير قيمة الوحدة",
+    comparisonMetricNewQty: "كمية جديدة",
+    comparisonMetricRemovedQty: "كمية محذوفة",
+    comparisonMetricNewValue: "قيمة جديدة",
+    comparisonMetricRemovedValue: "قيمة محذوفة",
+    comparisonMetricBaseImportedRows: "صفوف الملف الحالي",
+    comparisonMetricCompareImportedRows: "صفوف ملف المقارنة",
+    comparisonMetricSelectors: "مؤشرات المقارنة",
+    comparisonMetricSelectorHint: "اختر مؤشرات المقارنة التي تريد عرضها. المؤشرات التفصيلية مخفية افتراضيًا.",
+    comparisonChartsTitle: "رسوم المقارنة",
+    comparisonChartsEmpty: "اختر رسوم المقارنة من القائمة لعرضها.",
+    comparisonChartSelectors: "رسوم المقارنة",
+    comparisonChartSelectorHint: "اختر رسوم المقارنة التي تريد عرضها. كل رسوم المقارنة مخفية افتراضيًا.",
+    comparisonChartStatus: "حالات صفوف المقارنة",
+    comparisonChartQtyByStatus: "حركة الكمية حسب الحالة",
+    comparisonChartValueByStatus: "حركة القيمة حسب الحالة",
+    comparisonChartTopQtyGains: "أعلى زيادات كمية",
+    comparisonChartTopQtyLosses: "أعلى نقصانات كمية",
+    comparisonChartTopValueGains: "أعلى زيادات قيمة",
+    comparisonChartTopValueLosses: "أعلى نقصانات قيمة",
+    comparisonChartQtyByCategory: "الكمية الحالية مقابل المقارنة حسب الفئة",
+    comparisonChartValueByCategory: "القيمة الحالية مقابل المقارنة حسب الفئة",
+    comparisonChartChangedByLocation: "الصفوف المتغيرة حسب الموقع",
+    comparisonChartQtyMovementByLocation: "حركة الكمية حسب الموقع",
+    comparisonChartValueMovementByLocation: "حركة القيمة حسب الموقع",
+    comparisonChartChangedByCategoryLine: "الصفوف المتغيرة حسب الفئة",
+    comparisonChartQtyMovementByCategoryLine: "حركة الكمية حسب الفئة",
+    comparisonChartValueMovementByCategoryLine: "حركة القيمة حسب الفئة",
+    comparisonChartNoData: "لا توجد بيانات كافية لهذا الرسم.",
+    comparisonChartCurrent: "الحالي",
+    comparisonChartComparison: "المقارنة",
+    comparisonViewPositiveQty: "صفوف زادت كميتها",
+    comparisonViewNegativeQty: "صفوف نقصت كميتها",
+    comparisonViewUnitValueChanged: "صفوف تغيرت قيمة الوحدة فيها",
+    comparisonClickHint: "اضغط لعرض الصفوف",
+    comparisonViewAll: "كل نتائج المقارنة",
+    comparisonViewChanged: "الصفوف المتغيرة",
+    comparisonViewNew: "الصفوف الجديدة",
+    comparisonViewRemoved: "الصفوف المحذوفة",
+    comparisonViewIncreased: "صفوف الزيادة",
+    comparisonViewDecreased: "صفوف النقصان",
+    comparisonViewUnchanged: "الصفوف بدون تغيير",
+    comparisonViewQtyChanged: "صفوف تغير الكمية",
+    comparisonViewAvailableChanged: "صفوف تغير المتاح",
+    comparisonViewReservedChanged: "صفوف تغير المحجوز",
+    comparisonViewValueChanged: "صفوف تغير القيمة",
+    comparisonViewQtyOnly: "صفوف تغيرت فيها الكمية فقط",
+    comparisonViewValueOnly: "صفوف تغيرت فيها القيمة فقط",
+    comparisonViewQtyAndValue: "صفوف تغيرت فيها الكمية والقيمة",
+    comparisonViewPositiveValue: "صفوف زادت قيمتها",
+    comparisonViewNegativeValue: "صفوف انخفضت قيمتها",
+    comparisonViewMatched: "الصفوف الموجودة في الملفين",
+    comparisonViewAffectedProducts: "المنتجات المتأثرة",
+    comparisonViewAffectedLocations: "المواقع المتأثرة",
+    comparisonActiveView: "العرض الحالي: {view} • {shown} من {total}",
+    clearComparisonView: "عرض كل المقارنة",
+    colCompareProduct: "المنتج",
+    colCompareCategory: "الفئة",
+    colCompareLocation: "الموقع",
+    colCompareLot: "الدفعة / التسلسل",
+    colCompareUom: "وحدة القياس",
+    colBaseOnHand: "الكمية الحالية",
+    colCompareOnHand: "كمية ملف المقارنة",
+    colDeltaOnHand: "فرق الكمية",
+    colBaseAvailable: "المتاح الحالي",
+    colCompareAvailable: "متاح المقارنة",
+    colDeltaAvailable: "فرق المتاح",
+    colBaseValue: "القيمة الحالية",
+    colCompareValue: "قيمة المقارنة",
+    colDeltaValue: "فرق القيمة",
+    colBaseReserved: "المحجوز الحالي",
+    colCompareReserved: "محجوز المقارنة",
+    colDeltaReserved: "فرق المحجوز",
+    colDeltaQtyPercent: "٪ تغير الكمية",
+    colDeltaValuePercent: "٪ تغير القيمة",
+    colBaseUnitValue: "قيمة الوحدة الحالية",
+    colCompareUnitValue: "قيمة وحدة المقارنة",
+    colDeltaUnitValue: "فرق قيمة الوحدة",
+    colCurrentRows: "صفوف حالية",
+    colComparisonRows: "صفوف المقارنة",
+    colCompareStatus: "نوع التغيير"
   },
   en: {
     appTitle: "Inventory Monitoring Dashboard — EC",
@@ -232,11 +369,13 @@ const I18N = {
     language: "Language",
     dataActions: "Files",
     importFile: "📁 Import file",
+    importCompareFile: "📊 Import comparison XLSX",
     templateXlsx: "⬇ XLSX template",
     templateCsv: "⬇ CSV template",
     emptySubtitle: "Import the inventory file to open the interactive dashboard.",
     importXlsxCsv: "Import XLSX / CSV",
     importWorking: "Importing file...",
+    comparisonWorking: "Importing comparison file...",
     renderWarning: "Data was loaded, but part of the dashboard failed to render. The table and core data were still displayed.",
     downloadTemplate: "Download template",
     searchPlaceholder: "Type a value, then press Enter to add it as a search filter...",
@@ -320,8 +459,13 @@ const I18N = {
     pageInfo: "Page {page} of {pages}",
     importSuccess: "Imported {count} inventory records from {file}.",
     skippedSummary: " Skipped {count} grouped summary rows to prevent double-counting.",
+    comparisonSuccess: "Compared {count} row/item(s) with {file}.",
+    comparisonNeedsMain: "Import the main inventory file first, then import another XLSX file for comparison.",
+    comparisonXlsxOnly: "The comparison file must be an XLSX file.",
     exportNoRows: "There are no records matching the current filters to export.",
+    comparisonExportEmpty: "There is no comparison data to export.",
     clearConfirm: "Clear all imported inventory data from this page?",
+    comparisonClearConfirm: "Clear comparison results only?",
     chartValueByCategory: "Value by category",
     chartQtyByCategory: "Quantity distribution by category",
     chartQtyByLocation: "Quantity by location",
@@ -401,7 +545,137 @@ const I18N = {
     productLocationsTitle: "{product} locations — {count}",
     locationPopupOnHand: "On hand",
     locationPopupAvailable: "Available",
-    noRowsMatch: "No rows match the active filters."
+    noRowsMatch: "No rows match the active filters.",
+    comparisonTitle: "Inventory data comparison",
+    comparisonEmptyHint: "Import another XLSX file from Settings to compare it against the current data.",
+    comparisonInfo: "Compared with {file} • {count} comparison rows",
+    comparisonNoRows: "No comparison results were found.",
+    comparisonTableCapped: "Showing the first {shown} results out of {total}. Export to see every result.",
+    exportComparisonCsv: "⬇ Export CSV",
+    exportComparisonXlsx: "⬇ Export XLSX",
+    clearComparison: "Clear comparison",
+    comparisonNew: "New in comparison file",
+    comparisonRemoved: "Missing from comparison file",
+    comparisonIncreased: "Increased",
+    comparisonDecreased: "Decreased",
+    comparisonChanged: "Changed",
+    comparisonUnchanged: "Unchanged",
+    comparisonMetricRows: "Comparison rows",
+    comparisonMetricChanged: "Changes",
+    comparisonMetricNew: "New",
+    comparisonMetricRemoved: "Removed",
+    comparisonMetricQtyDelta: "Quantity delta",
+    comparisonMetricValueDelta: "Value delta",
+    comparisonMetricIncreased: "Increases",
+    comparisonMetricDecreased: "Decreases",
+    comparisonMetricUnchanged: "Unchanged",
+    comparisonMetricQtyChanged: "Qty changed",
+    comparisonMetricAvailableChanged: "Available changed",
+    comparisonMetricReservedChanged: "Reserved changed",
+    comparisonMetricValueChanged: "Value changed",
+    comparisonMetricQtyOnly: "Qty-only changes",
+    comparisonMetricValueOnly: "Value-only changes",
+    comparisonMetricQtyAndValue: "Qty + value changes",
+    comparisonMetricValueGain: "Value gains",
+    comparisonMetricValueLoss: "Value losses",
+    comparisonMetricMatched: "Matched rows",
+    comparisonMetricBaseQty: "Current qty",
+    comparisonMetricCompareQty: "Comparison qty",
+    comparisonMetricBaseValue: "Current value",
+    comparisonMetricCompareValue: "Comparison value",
+    comparisonMetricQtyMovement: "Absolute qty movement",
+    comparisonMetricValueMovement: "Absolute value movement",
+    comparisonMetricQtyPercent: "Quantity change %",
+    comparisonMetricValuePercent: "Value change %",
+    comparisonMetricAffectedProducts: "Affected products",
+    comparisonMetricAffectedLocations: "Affected locations",
+    comparisonMetricAvailableDelta: "Available delta",
+    comparisonMetricReservedDelta: "Reserved delta",
+    comparisonMetricAvailablePercent: "Available change %",
+    comparisonMetricReservedPercent: "Reserved change %",
+    comparisonMetricQtyGainRows: "Quantity gain rows",
+    comparisonMetricQtyLossRows: "Quantity loss rows",
+    comparisonMetricUnitValueChanged: "Unit value changed",
+    comparisonMetricNewQty: "New quantity",
+    comparisonMetricRemovedQty: "Removed quantity",
+    comparisonMetricNewValue: "New value",
+    comparisonMetricRemovedValue: "Removed value",
+    comparisonMetricBaseImportedRows: "Current file rows",
+    comparisonMetricCompareImportedRows: "Comparison file rows",
+    comparisonMetricSelectors: "Comparison KPIs",
+    comparisonMetricSelectorHint: "Choose which comparison KPIs to display. Detailed KPIs are hidden by default.",
+    comparisonChartsTitle: "Comparison charts",
+    comparisonChartsEmpty: "Select comparison charts from the menu to show them.",
+    comparisonChartSelectors: "Comparison charts",
+    comparisonChartSelectorHint: "Choose which comparison charts to display. All comparison charts are hidden by default.",
+    comparisonChartStatus: "Comparison row status",
+    comparisonChartQtyByStatus: "Quantity movement by status",
+    comparisonChartValueByStatus: "Value movement by status",
+    comparisonChartTopQtyGains: "Top quantity gains",
+    comparisonChartTopQtyLosses: "Top quantity losses",
+    comparisonChartTopValueGains: "Top value gains",
+    comparisonChartTopValueLosses: "Top value losses",
+    comparisonChartQtyByCategory: "Current vs comparison quantity by category",
+    comparisonChartValueByCategory: "Current vs comparison value by category",
+    comparisonChartChangedByLocation: "Changed rows by location",
+    comparisonChartQtyMovementByLocation: "Quantity movement by location",
+    comparisonChartValueMovementByLocation: "Value movement by location",
+    comparisonChartChangedByCategoryLine: "Changed rows by category",
+    comparisonChartQtyMovementByCategoryLine: "Quantity movement by category",
+    comparisonChartValueMovementByCategoryLine: "Value movement by category",
+    comparisonChartNoData: "Not enough data for this chart.",
+    comparisonChartCurrent: "Current",
+    comparisonChartComparison: "Comparison",
+    comparisonViewPositiveQty: "Rows with quantity gains",
+    comparisonViewNegativeQty: "Rows with quantity losses",
+    comparisonViewUnitValueChanged: "Rows with unit value changes",
+    comparisonClickHint: "Click to view rows",
+    comparisonViewAll: "All comparison results",
+    comparisonViewChanged: "Changed rows",
+    comparisonViewNew: "New rows",
+    comparisonViewRemoved: "Removed rows",
+    comparisonViewIncreased: "Increased rows",
+    comparisonViewDecreased: "Decreased rows",
+    comparisonViewUnchanged: "Unchanged rows",
+    comparisonViewQtyChanged: "Quantity-changed rows",
+    comparisonViewAvailableChanged: "Available-changed rows",
+    comparisonViewReservedChanged: "Reserved-changed rows",
+    comparisonViewValueChanged: "Value-changed rows",
+    comparisonViewQtyOnly: "Quantity-only changes",
+    comparisonViewValueOnly: "Value-only changes",
+    comparisonViewQtyAndValue: "Quantity and value changes",
+    comparisonViewPositiveValue: "Rows with value gains",
+    comparisonViewNegativeValue: "Rows with value losses",
+    comparisonViewMatched: "Rows found in both files",
+    comparisonViewAffectedProducts: "Affected products",
+    comparisonViewAffectedLocations: "Affected locations",
+    comparisonActiveView: "Current view: {view} • {shown} of {total}",
+    clearComparisonView: "Show all comparison",
+    colCompareProduct: "Product",
+    colCompareCategory: "Category",
+    colCompareLocation: "Location",
+    colCompareLot: "Batch / serial",
+    colCompareUom: "UOM",
+    colBaseOnHand: "Current qty",
+    colCompareOnHand: "Comparison qty",
+    colDeltaOnHand: "Qty delta",
+    colBaseAvailable: "Current available",
+    colCompareAvailable: "Comparison available",
+    colDeltaAvailable: "Available delta",
+    colBaseValue: "Current value",
+    colCompareValue: "Comparison value",
+    colDeltaValue: "Value delta",
+    colBaseReserved: "Current reserved",
+    colCompareReserved: "Comparison reserved",
+    colDeltaReserved: "Reserved delta",
+    colDeltaQtyPercent: "Qty change %",
+    colDeltaValuePercent: "Value change %",
+    colBaseUnitValue: "Current unit value",
+    colCompareUnitValue: "Comparison unit value",
+    colDeltaUnitValue: "Unit value delta",
+    colCurrentRows: "Current rows",
+    colComparisonRows: "Comparison rows",
+    colCompareStatus: "Change type"
   }
 };
 
@@ -463,6 +737,73 @@ const OPTIONAL_CHART_DEFINITIONS = [
   { id: "unitValueChart", labelKey: "chartUnitValueProducts" }
 ];
 const OPTIONAL_CHART_IDS = new Set(OPTIONAL_CHART_DEFINITIONS.map(item => item.id));
+
+
+const COMPARISON_KPI_DEFINITIONS = [
+  { id: "rows", view: "all", labelKey: "comparisonMetricRows", value: summary => numberFormatter.format(summary.totalRows || 0), cls: "blue", defaultVisible: true, primary: true },
+  { id: "changed", view: "changed", labelKey: "comparisonMetricChanged", value: summary => numberFormatter.format(summary.changedRows || 0), cls: "amber", defaultVisible: true },
+  { id: "new", view: "new", labelKey: "comparisonMetricNew", value: summary => numberFormatter.format(summary.newRows || 0), cls: "green", defaultVisible: true },
+  { id: "removed", view: "removed", labelKey: "comparisonMetricRemoved", value: summary => numberFormatter.format(summary.removedRows || 0), cls: "rose", defaultVisible: true },
+  { id: "qtyDelta", view: "qtyChanged", labelKey: "comparisonMetricQtyDelta", value: summary => formatSignedNumber(summary.deltaOnHand), cls: summary => deltaClass(summary.deltaOnHand), defaultVisible: true },
+  { id: "valueDelta", view: "valueChanged", labelKey: "comparisonMetricValueDelta", value: summary => formatSignedMoney(summary.deltaValue), cls: summary => deltaClass(summary.deltaValue), defaultVisible: true },
+  { id: "increased", view: "increased", labelKey: "comparisonMetricIncreased", value: summary => numberFormatter.format(summary.increasedRows || 0), cls: "positive" },
+  { id: "decreased", view: "decreased", labelKey: "comparisonMetricDecreased", value: summary => numberFormatter.format(summary.decreasedRows || 0), cls: "negative" },
+  { id: "unchanged", view: "unchanged", labelKey: "comparisonMetricUnchanged", value: summary => numberFormatter.format(summary.unchangedRows || 0), cls: "neutral" },
+  { id: "matched", view: "matched", labelKey: "comparisonMetricMatched", value: summary => numberFormatter.format(summary.matchedRows || 0), cls: "slate" },
+  { id: "qtyChanged", view: "qtyChanged", labelKey: "comparisonMetricQtyChanged", value: summary => numberFormatter.format(summary.changedQuantityRows || 0), cls: "purple" },
+  { id: "availableChanged", view: "availableChanged", labelKey: "comparisonMetricAvailableChanged", value: summary => numberFormatter.format(summary.changedAvailableRows || 0), cls: "teal" },
+  { id: "reservedChanged", view: "reservedChanged", labelKey: "comparisonMetricReservedChanged", value: summary => numberFormatter.format(summary.changedReservedRows || 0), cls: "indigo" },
+  { id: "valueChanged", view: "valueChanged", labelKey: "comparisonMetricValueChanged", value: summary => numberFormatter.format(summary.changedValueRows || 0), cls: "purple" },
+  { id: "qtyOnly", view: "qtyOnly", labelKey: "comparisonMetricQtyOnly", value: summary => numberFormatter.format(summary.qtyOnlyRows || 0), cls: "blue" },
+  { id: "valueOnly", view: "valueOnly", labelKey: "comparisonMetricValueOnly", value: summary => numberFormatter.format(summary.valueOnlyRows || 0), cls: "amber" },
+  { id: "qtyAndValue", view: "qtyAndValue", labelKey: "comparisonMetricQtyAndValue", value: summary => numberFormatter.format(summary.qtyAndValueRows || 0), cls: "green" },
+  { id: "positiveValue", view: "positiveValue", labelKey: "comparisonMetricValueGain", value: summary => numberFormatter.format(summary.positiveValueRows || 0), cls: "positive" },
+  { id: "negativeValue", view: "negativeValue", labelKey: "comparisonMetricValueLoss", value: summary => numberFormatter.format(summary.negativeValueRows || 0), cls: "negative" },
+  { id: "positiveQty", view: "positiveQty", labelKey: "comparisonMetricQtyGainRows", value: summary => numberFormatter.format(summary.positiveQtyRows || 0), cls: "positive" },
+  { id: "negativeQty", view: "negativeQty", labelKey: "comparisonMetricQtyLossRows", value: summary => numberFormatter.format(summary.negativeQtyRows || 0), cls: "negative" },
+  { id: "unitValueChanged", view: "unitValueChanged", labelKey: "comparisonMetricUnitValueChanged", value: summary => numberFormatter.format(summary.unitValueChangedRows || 0), cls: "purple" },
+  { id: "affectedProducts", view: "affectedProducts", labelKey: "comparisonMetricAffectedProducts", value: summary => numberFormatter.format(summary.affectedProducts || 0), cls: "cyan" },
+  { id: "affectedLocations", view: "affectedLocations", labelKey: "comparisonMetricAffectedLocations", value: summary => numberFormatter.format(summary.affectedLocations || 0), cls: "slate" },
+  { id: "baseQty", view: "all", labelKey: "comparisonMetricBaseQty", value: summary => numberFormatter.format(summary.baseOnHand || 0), cls: "blue" },
+  { id: "compareQty", view: "all", labelKey: "comparisonMetricCompareQty", value: summary => numberFormatter.format(summary.compareOnHand || 0), cls: "blue" },
+  { id: "qtyMovement", view: "qtyChanged", labelKey: "comparisonMetricQtyMovement", value: summary => numberFormatter.format(summary.absoluteQtyMovement || 0), cls: "teal" },
+  { id: "qtyPercent", view: "qtyChanged", labelKey: "comparisonMetricQtyPercent", value: summary => formatSignedPercent(summary.deltaOnHandPct), cls: summary => deltaClass(summary.deltaOnHandPct) },
+  { id: "baseValue", view: "all", labelKey: "comparisonMetricBaseValue", value: summary => formatCompactMoney(summary.baseValue), cls: "purple" },
+  { id: "compareValue", view: "all", labelKey: "comparisonMetricCompareValue", value: summary => formatCompactMoney(summary.compareValue), cls: "purple" },
+  { id: "valueMovement", view: "valueChanged", labelKey: "comparisonMetricValueMovement", value: summary => formatCompactMoney(summary.absoluteValueMovement), cls: "amber" },
+  { id: "valuePercent", view: "valueChanged", labelKey: "comparisonMetricValuePercent", value: summary => formatSignedPercent(summary.deltaValuePct), cls: summary => deltaClass(summary.deltaValuePct) },
+  { id: "availableDelta", view: "availableChanged", labelKey: "comparisonMetricAvailableDelta", value: summary => formatSignedNumber(summary.deltaAvailable), cls: summary => deltaClass(summary.deltaAvailable) },
+  { id: "reservedDelta", view: "reservedChanged", labelKey: "comparisonMetricReservedDelta", value: summary => formatSignedNumber(summary.deltaReserved), cls: summary => deltaClass(summary.deltaReserved) },
+  { id: "availablePercent", view: "availableChanged", labelKey: "comparisonMetricAvailablePercent", value: summary => formatSignedPercent(summary.deltaAvailablePct), cls: summary => deltaClass(summary.deltaAvailablePct) },
+  { id: "reservedPercent", view: "reservedChanged", labelKey: "comparisonMetricReservedPercent", value: summary => formatSignedPercent(summary.deltaReservedPct), cls: summary => deltaClass(summary.deltaReservedPct) },
+  { id: "newQty", view: "new", labelKey: "comparisonMetricNewQty", value: summary => numberFormatter.format(summary.newQty || 0), cls: "green" },
+  { id: "removedQty", view: "removed", labelKey: "comparisonMetricRemovedQty", value: summary => numberFormatter.format(summary.removedQty || 0), cls: "rose" },
+  { id: "newValue", view: "new", labelKey: "comparisonMetricNewValue", value: summary => formatCompactMoney(summary.newValue), cls: "green" },
+  { id: "removedValue", view: "removed", labelKey: "comparisonMetricRemovedValue", value: summary => formatCompactMoney(summary.removedValue), cls: "rose" },
+  { id: "baseImportedRows", view: "all", labelKey: "comparisonMetricBaseImportedRows", value: summary => numberFormatter.format(summary.baseImportedRows || 0), cls: "slate" },
+  { id: "compareImportedRows", view: "all", labelKey: "comparisonMetricCompareImportedRows", value: summary => numberFormatter.format(summary.compareImportedRows || 0), cls: "slate" }
+];
+const COMPARISON_KPI_IDS = new Set(COMPARISON_KPI_DEFINITIONS.map(item => item.id));
+const DEFAULT_COMPARISON_KPI_IDS = new Set(COMPARISON_KPI_DEFINITIONS.filter(item => item.defaultVisible).map(item => item.id));
+
+const COMPARISON_CHART_DEFINITIONS = [
+  { id: "comparisonStatusChart", labelKey: "comparisonChartStatus", type: "doughnut" },
+  { id: "comparisonQtyStatusChart", labelKey: "comparisonChartQtyByStatus", type: "bar" },
+  { id: "comparisonValueStatusChart", labelKey: "comparisonChartValueByStatus", type: "bar" },
+  { id: "comparisonTopQtyGainsChart", labelKey: "comparisonChartTopQtyGains", type: "horizontal" },
+  { id: "comparisonTopQtyLossesChart", labelKey: "comparisonChartTopQtyLosses", type: "horizontal" },
+  { id: "comparisonTopValueGainsChart", labelKey: "comparisonChartTopValueGains", type: "horizontal" },
+  { id: "comparisonTopValueLossesChart", labelKey: "comparisonChartTopValueLosses", type: "horizontal" },
+  { id: "comparisonQtyCategoryChart", labelKey: "comparisonChartQtyByCategory", type: "grouped" },
+  { id: "comparisonValueCategoryChart", labelKey: "comparisonChartValueByCategory", type: "grouped" },
+  { id: "comparisonChangedLocationChart", labelKey: "comparisonChartChangedByLocation", type: "horizontal" },
+  { id: "comparisonQtyLocationChart", labelKey: "comparisonChartQtyMovementByLocation", type: "bar" },
+  { id: "comparisonValueLocationChart", labelKey: "comparisonChartValueMovementByLocation", type: "bar" },
+  { id: "comparisonChangedCategoryLineChart", labelKey: "comparisonChartChangedByCategoryLine", type: "line" },
+  { id: "comparisonQtyCategoryLineChart", labelKey: "comparisonChartQtyMovementByCategoryLine", type: "line" },
+  { id: "comparisonValueCategoryLineChart", labelKey: "comparisonChartValueMovementByCategoryLine", type: "line" }
+];
+const COMPARISON_CHART_IDS = new Set(COMPARISON_CHART_DEFINITIONS.map(item => item.id));
 const KPI_VIEW_LABEL_KEYS = {
   products: "quickProducts",
   out: "quickOutStock",
@@ -517,7 +858,10 @@ const state = {
   productTotals: false,
   searchTags: [],
   visibleOptionalKpis: new Set(initialPreferences.optionalKpis || []),
-  selectedCharts: new Set(initialPreferences.selectedCharts || [])
+  selectedCharts: new Set(initialPreferences.selectedCharts || []),
+  visibleComparisonKpis: new Set(initialPreferences.visibleComparisonKpis || Array.from(DEFAULT_COMPARISON_KPI_IDS)),
+  selectedComparisonCharts: new Set(initialPreferences.selectedComparisonCharts || []),
+  comparison: { rows: [], resultRows: [], summary: null, fileName: "", comparedAt: null, activeView: "all" }
 };
 
 const palette = ["#2563eb", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#22c55e", "#06b6d4", "#f97316", "#64748b", "#ec4899", "#84cc16", "#0ea5e9"];
@@ -535,6 +879,8 @@ window.addEventListener("DOMContentLoaded", () => {
   renderColumnToggles();
   renderOptionalKpiToggles();
   renderChartSelector();
+  renderComparisonKpiSelector();
+  renderComparisonChartSelector();
   bindEvents();
   setupChartExpandButtons();
   applyChartVisibility();
@@ -556,6 +902,11 @@ function bindEvents() {
   window.addEventListener("resize", debounce(handleViewportChange, 80));
   window.addEventListener("scroll", debounce(handleViewportChange, 80), true);
   $("#fileInput").addEventListener("change", event => handleFileImport(event.target.files[0]));
+  $("#compareImportBtn")?.addEventListener("click", () => {
+    if (!state.rows.length) return showMessage(t("comparisonNeedsMain"));
+    $("#compareFileInput")?.click();
+  });
+  $("#compareFileInput")?.addEventListener("change", event => handleComparisonImport(event.target.files[0]));
   $("#templateXlsxBtn").addEventListener("click", () => downloadXlsx("inventory_import_template.xlsx", SAMPLE_ROWS));
   $("#templateCsvBtn").addEventListener("click", () => downloadCsv("inventory_import_template.csv", SAMPLE_ROWS));
   $("#searchInput").addEventListener("input", () => {
@@ -588,6 +939,10 @@ function bindEvents() {
   $("#clearBtn").addEventListener("click", clearData);
   $("#exportCsvBtn").addEventListener("click", () => exportFiltered("csv"));
   $("#exportXlsxBtn").addEventListener("click", () => exportFiltered("xlsx"));
+  $("#exportComparisonCsvBtn")?.addEventListener("click", () => exportComparison("csv"));
+  $("#exportComparisonXlsxBtn")?.addEventListener("click", () => exportComparison("xlsx"));
+  $("#clearComparisonBtn")?.addEventListener("click", clearComparisonData);
+  $("#clearComparisonViewBtn")?.addEventListener("click", () => applyComparisonView("all"));
   $("#pageSizeSelect").addEventListener("change", event => { state.pageSize = Number(event.target.value); state.page = 1; renderTable(); });
   $("#prevPageBtn").addEventListener("click", () => { state.page = Math.max(1, state.page - 1); renderTable(); });
   $("#nextPageBtn").addEventListener("click", () => { const pages = getPageCount(); state.page = Math.min(pages, state.page + 1); renderTable(); });
@@ -618,6 +973,8 @@ function loadPreferences() {
       theme: parsed.theme === "dark" ? "dark" : "light",
       optionalKpis: Array.isArray(parsed.optionalKpis) ? parsed.optionalKpis.filter(key => OPTIONAL_KPI_KEYS.has(key)) : [],
       selectedCharts: Array.isArray(parsed.selectedCharts) ? parsed.selectedCharts.filter(id => OPTIONAL_CHART_IDS.has(id)) : [],
+      visibleComparisonKpis: Array.isArray(parsed.visibleComparisonKpis) ? parsed.visibleComparisonKpis.filter(id => COMPARISON_KPI_IDS.has(id)) : Array.from(DEFAULT_COMPARISON_KPI_IDS),
+      selectedComparisonCharts: Array.isArray(parsed.selectedComparisonCharts) ? parsed.selectedComparisonCharts.filter(id => COMPARISON_CHART_IDS.has(id)) : [],
       visibleColumns: visibleColumns.length ? visibleColumns : DISPLAY_COLUMNS.map(column => column.key),
       columnWidths
     };
@@ -627,6 +984,8 @@ function loadPreferences() {
       theme: "light",
       optionalKpis: [],
       selectedCharts: [],
+      visibleComparisonKpis: Array.from(DEFAULT_COMPARISON_KPI_IDS),
+      selectedComparisonCharts: [],
       visibleColumns: DISPLAY_COLUMNS.map(column => column.key),
       columnWidths: {}
     };
@@ -640,6 +999,8 @@ function savePreferences() {
       theme: state.theme,
       optionalKpis: Array.from(state.visibleOptionalKpis),
       selectedCharts: Array.from(state.selectedCharts),
+      visibleComparisonKpis: Array.from(state.visibleComparisonKpis),
+      selectedComparisonCharts: Array.from(state.selectedComparisonCharts),
       visibleColumns: Array.from(state.visibleColumns),
       columnWidths: state.columnWidths
     }));
@@ -720,10 +1081,14 @@ function setLanguage(language, persist = true) {
   renderColumnToggles();
   renderOptionalKpiToggles();
   renderChartSelector();
+  renderComparisonKpiSelector();
+  renderComparisonChartSelector();
   applyChartVisibility();
+  applyComparisonChartVisibility();
   renderKpis();
   renderTable();
   renderQuickViewBar();
+  renderComparisonPanel();
   updateLastUpdated();
   updateCharts();
   if (persist) savePreferences();
@@ -824,6 +1189,88 @@ function applyChartVisibility() {
     card.hidden = !visible;
   });
 }
+
+
+function renderComparisonKpiSelector() {
+  const container = $("#comparisonKpiSelectorOptions");
+  if (!container) return;
+  container.innerHTML = `<p>${escapeHtml(t("comparisonMetricSelectorHint"))}</p>` + COMPARISON_KPI_DEFINITIONS.map(item => {
+    const checked = state.visibleComparisonKpis.has(item.id) ? "checked" : "";
+    const tag = item.defaultVisible ? t("defaultChart") : t("optionalChart");
+    return `
+      <label class="chart-option">
+        <input type="checkbox" value="${escapeHtml(item.id)}" ${checked}>
+        <span>${escapeHtml(t(item.labelKey))}</span>
+        <small>${escapeHtml(tag)}</small>
+      </label>
+    `;
+  }).join("");
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    input.addEventListener("change", event => {
+      const id = event.currentTarget.value;
+      if (event.currentTarget.checked) state.visibleComparisonKpis.add(id);
+      else state.visibleComparisonKpis.delete(id);
+      savePreferences();
+      renderComparisonPanel();
+    });
+  });
+}
+
+function renderComparisonChartSelector() {
+  const container = $("#comparisonChartSelectorOptions");
+  if (!container) return;
+  container.innerHTML = `<p>${escapeHtml(t("comparisonChartSelectorHint"))}</p>` + COMPARISON_CHART_DEFINITIONS.map(item => {
+    const checked = state.selectedComparisonCharts.has(item.id) ? "checked" : "";
+    return `
+      <label class="chart-option">
+        <input type="checkbox" value="${escapeHtml(item.id)}" ${checked}>
+        <span>${escapeHtml(t(item.labelKey))}</span>
+        <small>${escapeHtml(item.type)}</small>
+      </label>
+    `;
+  }).join("");
+  container.querySelectorAll("input[type=checkbox]").forEach(input => {
+    input.addEventListener("change", event => {
+      const id = event.currentTarget.value;
+      if (event.currentTarget.checked) state.selectedComparisonCharts.add(id);
+      else state.selectedComparisonCharts.delete(id);
+      savePreferences();
+      ensureComparisonChartCards();
+      applyComparisonChartVisibility();
+      requestAnimationFrame(renderComparisonCharts);
+    });
+  });
+  ensureComparisonChartCards();
+  applyComparisonChartVisibility();
+}
+
+function ensureComparisonChartCards() {
+  const grid = $("#comparisonChartsGrid");
+  if (!grid) return;
+  COMPARISON_CHART_DEFINITIONS.forEach(item => {
+    if (grid.querySelector(`[data-chart-id="${item.id}"]`)) return;
+    const article = document.createElement("article");
+    article.className = "chart-card comparison-chart-card";
+    article.dataset.chartId = item.id;
+    article.hidden = true;
+    article.innerHTML = `<canvas id="${escapeHtml(item.id)}"></canvas>`;
+    grid.appendChild(article);
+  });
+  setupChartExpandButtons();
+}
+
+function applyComparisonChartVisibility() {
+  const grid = $("#comparisonChartsGrid");
+  if (!grid) return;
+  let anyVisible = false;
+  $$(".comparison-chart-card[data-chart-id]").forEach(card => {
+    const visible = state.selectedComparisonCharts.has(card.dataset.chartId) && Boolean(state.comparison.resultRows.length);
+    card.hidden = !visible;
+    anyVisible = anyVisible || visible;
+  });
+  const empty = $("#comparisonChartsEmpty");
+  if (empty) empty.hidden = anyVisible || !state.comparison.resultRows.length;
+}
 function toggleMoreCharts() {
   state.showMoreCharts = !state.showMoreCharts;
   updateMoreChartsUi();
@@ -892,7 +1339,22 @@ function chartTitleForId(chartId) {
     reservedLocationChart: "chartReservedByLocation",
     lowStockProductsChart: "chartLowStockProducts",
     batchCategoryChart: "chartBatchCountByCategory",
-    unitValueChart: "chartUnitValueProducts"
+    unitValueChart: "chartUnitValueProducts",
+    comparisonStatusChart: "comparisonChartStatus",
+    comparisonQtyStatusChart: "comparisonChartQtyByStatus",
+    comparisonValueStatusChart: "comparisonChartValueByStatus",
+    comparisonTopQtyGainsChart: "comparisonChartTopQtyGains",
+    comparisonTopQtyLossesChart: "comparisonChartTopQtyLosses",
+    comparisonTopValueGainsChart: "comparisonChartTopValueGains",
+    comparisonTopValueLossesChart: "comparisonChartTopValueLosses",
+    comparisonQtyCategoryChart: "comparisonChartQtyByCategory",
+    comparisonValueCategoryChart: "comparisonChartValueByCategory",
+    comparisonChangedLocationChart: "comparisonChartChangedByLocation",
+    comparisonQtyLocationChart: "comparisonChartQtyMovementByLocation",
+    comparisonValueLocationChart: "comparisonChartValueMovementByLocation",
+    comparisonChangedCategoryLineChart: "comparisonChartChangedByCategoryLine",
+    comparisonQtyCategoryLineChart: "comparisonChartQtyMovementByCategoryLine",
+    comparisonValueCategoryLineChart: "comparisonChartValueMovementByCategoryLine"
   };
   return t(map[chartId] || "appTitle");
 }
@@ -1034,6 +1496,8 @@ async function handleFileImport(file) {
     updateLastUpdated(file.name);
 
     const renderedCleanly = safeApplyFilters();
+    if (state.comparison.rows.length) runInventoryComparison(state.comparison.rows, state.comparison.fileName);
+    else renderComparisonPanel();
     const skippedText = state.importMeta.skippedSummaryRows ? t("skippedSummary", { count: numberFormatter.format(state.importMeta.skippedSummaryRows) }) : "";
     const warningText = renderedCleanly ? "" : ` ${t("renderWarning")}`;
     showMessage(t("importSuccess", { count: numberFormatter.format(state.rows.length), file: escapeHtml(file.name) }) + skippedText + warningText, renderedCleanly ? "success" : "error", renderedCleanly ? 4200 : 0);
@@ -1535,6 +1999,7 @@ function clearData() {
   renderSearchTags();
   hideSearchSuggestions();
   state.productTotals = false;
+  resetComparisonData();
   updateProductTotalsToggle();
   updateMoreChartsUi();
   renderQuickViewBar();
@@ -1704,6 +2169,7 @@ function updateCharts() {
     if (!card || card.hidden) return;
     renderChartById(id);
   });
+  renderComparisonCharts();
   if (state.expandedChartId && !$("#chartModal")?.hidden) {
     renderChartById(state.expandedChartId, $("#expandedChartCanvas"), true);
   }
@@ -1716,6 +2182,7 @@ function chartLimit(canvas, normalLimit, expandedLimit) {
 }
 
 function renderChartById(chartId, targetCanvas = null, expanded = false) {
+  if (COMPARISON_CHART_IDS.has(chartId)) return renderComparisonChartById(chartId, targetCanvas, expanded);
   const canvas = targetCanvas || $("#" + chartId);
   if (!canvas) return;
   const rows = state.filteredRows;
@@ -1819,6 +2286,688 @@ function renderChartById(chartId, targetCanvas = null, expanded = false) {
         onClick: label => addSearchTag(label)
       });
   }
+}
+
+
+async function handleComparisonImport(file) {
+  if (!file) return;
+  if (!state.rows.length) {
+    showMessage(t("comparisonNeedsMain"));
+    if ($("#compareFileInput")) $("#compareFileInput").value = "";
+    return;
+  }
+  const extension = file.name.split(".").pop().toLowerCase();
+  if (extension !== "xlsx") {
+    showMessage(t("comparisonXlsxOnly"));
+    if ($("#compareFileInput")) $("#compareFileInput").value = "";
+    return;
+  }
+  showMessage(t("comparisonWorking"), "info");
+  try {
+    const matrix = await readXlsxFile(file);
+    const result = matrixToRows(matrix);
+    runInventoryComparison(result.rows, file.name);
+    const settingsPanel = $("#settingsPanel");
+    if (settingsPanel) settingsPanel.hidden = true;
+    updateSettingsUi();
+    showMessage(t("comparisonSuccess", { count: numberFormatter.format(state.comparison.resultRows.length), file: escapeHtml(file.name) }), "success", 4200);
+    $("#comparisonPanel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    console.error("Comparison import failed", error);
+    showMessage(error.message || t("comparisonXlsxOnly"));
+  } finally {
+    if ($("#compareFileInput")) $("#compareFileInput").value = "";
+  }
+}
+
+function runInventoryComparison(comparisonRows, fileName) {
+  const comparison = compareInventoryRows(state.rows, comparisonRows || []);
+  state.comparison = {
+    rows: comparisonRows || [],
+    resultRows: comparison.rows,
+    summary: comparison.summary,
+    fileName: fileName || state.comparison.fileName || "comparison.xlsx",
+    comparedAt: new Date(),
+    activeView: "all"
+  };
+  renderComparisonPanel();
+}
+
+function compareInventoryRows(baseRows, comparisonRows) {
+  const baseMap = aggregateForComparison(baseRows);
+  const comparisonMap = aggregateForComparison(comparisonRows);
+  const keys = Array.from(new Set([...baseMap.keys(), ...comparisonMap.keys()]));
+  const rows = keys.map(key => {
+    const base = baseMap.get(key) || emptyComparisonAggregate(key);
+    const other = comparisonMap.get(key) || emptyComparisonAggregate(key);
+    const product = other.product !== "Unspecified" ? other.product : base.product;
+    const category = other.category !== "Unspecified" ? other.category : base.category;
+    const location = other.location !== "Unspecified" ? other.location : base.location;
+    const lot = other.lot || base.lot;
+    const uom = other.uom !== "Unspecified" ? other.uom : base.uom;
+    const deltaOnHand = other.onHand - base.onHand;
+    const deltaAvailable = other.available - base.available;
+    const deltaReserved = other.reserved - base.reserved;
+    const deltaValue = other.value - base.value;
+    const baseUnitValue = unitValueForComparison(base.value, base.onHand, base.available);
+    const compareUnitValue = unitValueForComparison(other.value, other.onHand, other.available);
+    const deltaUnitValue = compareUnitValue - baseUnitValue;
+    const existsInBase = Boolean(base.exists);
+    const existsInComparison = Boolean(other.exists);
+    const changeType = getComparisonChangeType({ existsInBase, existsInComparison, deltaOnHand, deltaAvailable, deltaReserved, deltaValue });
+    return {
+      key,
+      product,
+      category,
+      location,
+      lot,
+      uom,
+      baseOnHand: base.onHand,
+      compareOnHand: other.onHand,
+      deltaOnHand,
+      baseAvailable: base.available,
+      compareAvailable: other.available,
+      deltaAvailable,
+      baseReserved: base.reserved,
+      compareReserved: other.reserved,
+      deltaReserved,
+      deltaOnHandPct: percentDelta(deltaOnHand, base.onHand),
+      deltaAvailablePct: percentDelta(deltaAvailable, base.available),
+      deltaReservedPct: percentDelta(deltaReserved, base.reserved),
+      baseValue: base.value,
+      compareValue: other.value,
+      deltaValue,
+      deltaValuePct: percentDelta(deltaValue, base.value),
+      baseUnitValue,
+      compareUnitValue,
+      deltaUnitValue,
+      deltaUnitValuePct: percentDelta(deltaUnitValue, baseUnitValue),
+      existsInBase,
+      existsInComparison,
+      changeType,
+      sourceRows: base.sourceRows,
+      comparisonRows: other.sourceRows
+    };
+  });
+  rows.sort((a, b) => comparisonSortWeight(b) - comparisonSortWeight(a) || a.product.localeCompare(b.product, undefined, { numeric: true, sensitivity: "base" }));
+  return { rows, summary: buildComparisonSummary(rows, baseRows, comparisonRows) };
+}
+
+function aggregateForComparison(rows) {
+  const map = new Map();
+  rows.forEach(row => {
+    const key = comparisonKey(row);
+    if (!map.has(key)) map.set(key, emptyComparisonAggregate(key, row));
+    const item = map.get(key);
+    item.exists = true;
+    item.product = row.product || item.product;
+    item.category = row.category || item.category;
+    item.location = row.location || item.location;
+    item.lot = row.lot || item.lot;
+    item.uom = row.uom || item.uom;
+    item.onHand += Number(row.onHand) || 0;
+    item.available += Number(row.available) || 0;
+    item.reserved += Number(row.reserved) || 0;
+    item.value += Number(row.value) || 0;
+    item.sourceRows += 1;
+  });
+  return map;
+}
+
+function comparisonKey(row) {
+  return [row.product, row.location, row.lot, row.uom].map(comparisonKeyPart).join("\u001f");
+}
+
+function comparisonKeyPart(value) {
+  return cleanText(value || "Unspecified").toLowerCase();
+}
+
+function emptyComparisonAggregate(key, row = {}) {
+  return {
+    key,
+    exists: false,
+    product: row.product || "Unspecified",
+    category: row.category || "Unspecified",
+    location: row.location || "Unspecified",
+    lot: row.lot || "",
+    uom: row.uom || "Unspecified",
+    onHand: 0,
+    available: 0,
+    reserved: 0,
+    value: 0,
+    sourceRows: 0
+  };
+}
+
+function unitValueForComparison(value, onHand, available) {
+  const quantity = Math.max(Math.abs(Number(onHand) || 0), Math.abs(Number(available) || 0));
+  return quantity ? (Number(value) || 0) / quantity : 0;
+}
+
+function percentDelta(delta, baseValue) {
+  const base = Number(baseValue) || 0;
+  const change = Number(delta) || 0;
+  if (Math.abs(base) > 0.0001) return (change / Math.abs(base)) * 100;
+  if (Math.abs(change) > 0.0001) return change > 0 ? 100 : -100;
+  return 0;
+}
+
+function getComparisonChangeType(row) {
+  if (!row.existsInBase && row.existsInComparison) return "new";
+  if (row.existsInBase && !row.existsInComparison) return "removed";
+  const changed = [row.deltaOnHand, row.deltaAvailable, row.deltaReserved, row.deltaValue].some(value => Math.abs(value) > 0.0001);
+  if (!changed) return "unchanged";
+  if (row.deltaOnHand > 0 || (row.deltaOnHand === 0 && row.deltaValue > 0)) return "increased";
+  if (row.deltaOnHand < 0 || (row.deltaOnHand === 0 && row.deltaValue < 0)) return "decreased";
+  return "changed";
+}
+
+function comparisonSortWeight(row) {
+  const priority = { new: 8, removed: 7, increased: 6, decreased: 6, changed: 5, unchanged: 1 }[row.changeType] || 1;
+  return priority * 1_000_000_000 + Math.abs(row.deltaValue) + Math.abs(row.deltaOnHand) * 10_000 + Math.abs(row.deltaAvailable) * 1_000;
+}
+
+function buildComparisonSummary(rows, baseRows, comparisonRows) {
+  const changedRows = rows.filter(row => row.changeType !== "unchanged");
+  const qtyChangedRows = rows.filter(row => Math.abs(row.deltaOnHand) > 0.0001);
+  const availableChangedRows = rows.filter(row => Math.abs(row.deltaAvailable) > 0.0001);
+  const reservedChangedRows = rows.filter(row => Math.abs(row.deltaReserved) > 0.0001);
+  const valueChangedRows = rows.filter(row => Math.abs(row.deltaValue) > 0.0001);
+  const qtyAndValueRows = rows.filter(row => Math.abs(row.deltaOnHand) > 0.0001 && Math.abs(row.deltaValue) > 0.0001);
+  const qtyOnlyRows = rows.filter(row => Math.abs(row.deltaOnHand) > 0.0001 && Math.abs(row.deltaValue) <= 0.0001);
+  const valueOnlyRows = rows.filter(row => Math.abs(row.deltaValue) > 0.0001 && Math.abs(row.deltaOnHand) <= 0.0001);
+  const unitValueChangedRows = rows.filter(row => Math.abs(row.deltaUnitValue) > 0.0001);
+  const newRows = rows.filter(row => row.changeType === "new");
+  const removedRows = rows.filter(row => row.changeType === "removed");
+  const baseOnHand = sum(baseRows, "onHand");
+  const compareOnHand = sum(comparisonRows, "onHand");
+  const baseAvailable = sum(baseRows, "available");
+  const compareAvailable = sum(comparisonRows, "available");
+  const baseReserved = sum(baseRows, "reserved");
+  const compareReserved = sum(comparisonRows, "reserved");
+  const baseValue = sum(baseRows, "value");
+  const compareValue = sum(comparisonRows, "value");
+  return {
+    totalRows: rows.length,
+    changedRows: changedRows.length,
+    newRows: newRows.length,
+    removedRows: removedRows.length,
+    increasedRows: rows.filter(row => row.changeType === "increased").length,
+    decreasedRows: rows.filter(row => row.changeType === "decreased").length,
+    unchangedRows: rows.filter(row => row.changeType === "unchanged").length,
+    matchedRows: rows.filter(row => row.existsInBase && row.existsInComparison).length,
+    changedQuantityRows: qtyChangedRows.length,
+    changedAvailableRows: availableChangedRows.length,
+    changedReservedRows: reservedChangedRows.length,
+    changedValueRows: valueChangedRows.length,
+    qtyOnlyRows: qtyOnlyRows.length,
+    valueOnlyRows: valueOnlyRows.length,
+    qtyAndValueRows: qtyAndValueRows.length,
+    positiveValueRows: rows.filter(row => row.deltaValue > 0.0001).length,
+    negativeValueRows: rows.filter(row => row.deltaValue < -0.0001).length,
+    positiveQtyRows: rows.filter(row => row.deltaOnHand > 0.0001).length,
+    negativeQtyRows: rows.filter(row => row.deltaOnHand < -0.0001).length,
+    unitValueChangedRows: unitValueChangedRows.length,
+    newQty: newRows.reduce((total, row) => total + Math.abs(Number(row.compareOnHand) || 0), 0),
+    removedQty: removedRows.reduce((total, row) => total + Math.abs(Number(row.baseOnHand) || 0), 0),
+    newValue: newRows.reduce((total, row) => total + Math.abs(Number(row.compareValue) || 0), 0),
+    removedValue: removedRows.reduce((total, row) => total + Math.abs(Number(row.baseValue) || 0), 0),
+    baseImportedRows: baseRows.length,
+    compareImportedRows: comparisonRows.length,
+    affectedProducts: new Set(changedRows.map(row => row.product).filter(Boolean)).size,
+    affectedLocations: new Set(changedRows.map(row => row.location).filter(Boolean)).size,
+    baseOnHand,
+    compareOnHand,
+    deltaOnHand: compareOnHand - baseOnHand,
+    deltaOnHandPct: percentDelta(compareOnHand - baseOnHand, baseOnHand),
+    baseAvailable,
+    compareAvailable,
+    deltaAvailable: compareAvailable - baseAvailable,
+    deltaAvailablePct: percentDelta(compareAvailable - baseAvailable, baseAvailable),
+    baseReserved,
+    compareReserved,
+    deltaReserved: compareReserved - baseReserved,
+    deltaReservedPct: percentDelta(compareReserved - baseReserved, baseReserved),
+    baseValue,
+    compareValue,
+    deltaValue: compareValue - baseValue,
+    deltaValuePct: percentDelta(compareValue - baseValue, baseValue),
+    absoluteQtyMovement: rows.reduce((total, row) => total + Math.abs(Number(row.deltaOnHand) || 0), 0),
+    absoluteValueMovement: rows.reduce((total, row) => total + Math.abs(Number(row.deltaValue) || 0), 0)
+  };
+}
+
+function renderComparisonPanel() {
+  const panel = $("#comparisonPanel");
+  if (!panel) return;
+  const rows = state.comparison.resultRows || [];
+  panel.hidden = !rows.length;
+  if (!rows.length) {
+    if ($("#comparisonSummary")) $("#comparisonSummary").innerHTML = "";
+    if ($("#comparisonTable")) $("#comparisonTable").innerHTML = "";
+    if ($("#comparisonTableNote")) $("#comparisonTableNote").textContent = "";
+    if ($("#comparisonViewBar")) $("#comparisonViewBar").hidden = true;
+    applyComparisonChartVisibility();
+    return;
+  }
+  const summary = state.comparison.summary || buildComparisonSummary(rows, state.rows, state.comparison.rows || []);
+  const activeView = state.comparison.activeView || "all";
+  const filteredRows = filterComparisonRows(rows, activeView);
+  const info = $("#comparisonInfo");
+  if (info) info.textContent = t("comparisonInfo", { file: state.comparison.fileName || "comparison.xlsx", count: numberFormatter.format(rows.length) });
+  renderComparisonSummary(summary);
+  renderComparisonViewBar(activeView, filteredRows.length, rows.length);
+  renderComparisonTable(filteredRows, rows.length, activeView);
+  renderComparisonKpiSelector();
+  renderComparisonChartSelector();
+  applyComparisonChartVisibility();
+  requestAnimationFrame(renderComparisonCharts);
+}
+
+function renderComparisonSummary(summary) {
+  const container = $("#comparisonSummary");
+  if (!container) return;
+  const activeView = state.comparison.activeView || "all";
+  const visibleCards = COMPARISON_KPI_DEFINITIONS.filter(card => state.visibleComparisonKpis.has(card.id));
+  container.innerHTML = visibleCards.map(card => {
+    const cls = typeof card.cls === "function" ? card.cls(summary) : card.cls;
+    const value = typeof card.value === "function" ? card.value(summary) : "";
+    return `
+      <article class="comparison-summary-card clickable-comparison-kpi ${escapeHtml(cls)} ${card.view === activeView && (activeView !== "all" || card.primary) ? "active-comparison-kpi" : ""}" role="button" tabindex="0" data-comparison-view="${escapeHtml(card.view)}" title="${escapeHtml(t("comparisonClickHint"))}">
+        <span>${escapeHtml(t(card.labelKey))}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <small>${escapeHtml(comparisonViewLabel(card.view))}</small>
+      </article>
+    `;
+  }).join("");
+  if (!visibleCards.length) {
+    container.innerHTML = `<p class="comparison-note">${escapeHtml(t("comparisonMetricSelectorHint"))}</p>`;
+  }
+  bindComparisonKpiCards();
+}
+
+
+
+function renderComparisonCharts() {
+  if (!state.comparison.resultRows.length) return;
+  ensureComparisonChartCards();
+  applyComparisonChartVisibility();
+  state.selectedComparisonCharts.forEach(id => {
+    const card = document.querySelector(`[data-chart-id="${id}"]`);
+    if (!card || card.hidden) return;
+    renderComparisonChartById(id);
+  });
+}
+
+function renderComparisonChartById(chartId, targetCanvas = null, expanded = false) {
+  const canvas = targetCanvas || $("#" + chartId);
+  if (!canvas) return;
+  const rows = filterComparisonRows(state.comparison.resultRows || [], state.comparison.activeView || "all");
+  const top = (data, normal = 8, large = 18) => topEntriesFromList(data, expanded ? large : chartLimit(canvas, normal, large));
+  switch (chartId) {
+    case "comparisonStatusChart":
+      return drawDoughnutChart(canvas, comparisonStatusCounts(rows), {
+        title: t("comparisonChartStatus"),
+        emptyText: t("comparisonChartNoData"),
+        onClick: label => applyComparisonView(label)
+      });
+    case "comparisonQtyStatusChart":
+      return drawVerticalBarChart(canvas, comparisonStatusMetric(rows, "deltaOnHand"), {
+        title: t("comparisonChartQtyByStatus"),
+        emptyText: t("comparisonChartNoData"),
+        valueFormatter: value => numberFormatter.format(value),
+        onClick: label => applyComparisonView(label)
+      });
+    case "comparisonValueStatusChart":
+      return drawVerticalBarChart(canvas, comparisonStatusMetric(rows, "deltaValue"), {
+        title: t("comparisonChartValueByStatus"),
+        emptyText: t("comparisonChartNoData"),
+        valueFormatter: formatCompactMoney,
+        onClick: label => applyComparisonView(label)
+      });
+    case "comparisonTopQtyGainsChart":
+      return drawHorizontalBarChart(canvas, topComparisonRows(rows, "deltaOnHand", "positive", 10, expanded ? 24 : 10), {
+        title: t("comparisonChartTopQtyGains"),
+        emptyText: t("comparisonChartNoData"),
+        onClick: label => addSearchTag(label)
+      });
+    case "comparisonTopQtyLossesChart":
+      return drawHorizontalBarChart(canvas, topComparisonRows(rows, "deltaOnHand", "negative", 10, expanded ? 24 : 10), {
+        title: t("comparisonChartTopQtyLosses"),
+        emptyText: t("comparisonChartNoData"),
+        onClick: label => addSearchTag(label)
+      });
+    case "comparisonTopValueGainsChart":
+      return drawHorizontalBarChart(canvas, topComparisonRows(rows, "deltaValue", "positive", 10, expanded ? 24 : 10), {
+        title: t("comparisonChartTopValueGains"),
+        emptyText: t("comparisonChartNoData"),
+        valueFormatter: formatCompactMoney,
+        onClick: label => addSearchTag(label)
+      });
+    case "comparisonTopValueLossesChart":
+      return drawHorizontalBarChart(canvas, topComparisonRows(rows, "deltaValue", "negative", 10, expanded ? 24 : 10), {
+        title: t("comparisonChartTopValueLosses"),
+        emptyText: t("comparisonChartNoData"),
+        valueFormatter: formatCompactMoney,
+        onClick: label => addSearchTag(label)
+      });
+    case "comparisonQtyCategoryChart":
+      return drawGroupedBarChart(canvas, top(comparisonGroupedBaseCompare(rows, "category", "baseOnHand", "compareOnHand"), 8, 16), {
+        title: t("comparisonChartQtyByCategory"),
+        firstLabel: t("comparisonChartCurrent"),
+        secondLabel: t("comparisonChartComparison"),
+        emptyText: t("comparisonChartNoData")
+      });
+    case "comparisonValueCategoryChart":
+      return drawGroupedBarChart(canvas, top(comparisonGroupedBaseCompare(rows, "category", "baseValue", "compareValue"), 8, 16), {
+        title: t("comparisonChartValueByCategory"),
+        firstLabel: t("comparisonChartCurrent"),
+        secondLabel: t("comparisonChartComparison"),
+        emptyText: t("comparisonChartNoData")
+      });
+    case "comparisonChangedLocationChart":
+      return drawHorizontalBarChart(canvas, top(comparisonGroupChangedCount(rows, "location"), 8, 18), {
+        title: t("comparisonChartChangedByLocation"),
+        emptyText: t("comparisonChartNoData")
+      });
+    case "comparisonQtyLocationChart":
+      return drawVerticalBarChart(canvas, top(comparisonGroupAbsSum(rows, "location", "deltaOnHand"), 8, 16), {
+        title: t("comparisonChartQtyMovementByLocation"),
+        emptyText: t("comparisonChartNoData")
+      });
+    case "comparisonValueLocationChart":
+      return drawVerticalBarChart(canvas, top(comparisonGroupAbsSum(rows, "location", "deltaValue"), 8, 16), {
+        title: t("comparisonChartValueMovementByLocation"),
+        emptyText: t("comparisonChartNoData"),
+        valueFormatter: formatCompactMoney
+      });
+    case "comparisonChangedCategoryLineChart":
+      return drawLineChart(canvas, top(comparisonGroupChangedCount(rows, "category"), 12, 28), {
+        title: t("comparisonChartChangedByCategoryLine"),
+        emptyText: t("comparisonChartNoData")
+      });
+    case "comparisonQtyCategoryLineChart":
+      return drawLineChart(canvas, top(comparisonGroupAbsSum(rows, "category", "deltaOnHand"), 12, 28), {
+        title: t("comparisonChartQtyMovementByCategoryLine"),
+        emptyText: t("comparisonChartNoData")
+      });
+    case "comparisonValueCategoryLineChart":
+      return drawLineChart(canvas, top(comparisonGroupAbsSum(rows, "category", "deltaValue"), 12, 28), {
+        title: t("comparisonChartValueMovementByCategoryLine"),
+        emptyText: t("comparisonChartNoData"),
+        valueFormatter: formatCompactMoney
+      });
+  }
+}
+
+function topEntriesFromList(data, limit) {
+  return data.slice().sort((a, b) => b.value - a.value).slice(0, limit);
+}
+
+function comparisonStatusCounts(rows) {
+  return ["new", "removed", "increased", "decreased", "changed", "unchanged"]
+    .map(type => ({ label: type, value: rows.filter(row => row.changeType === type).length }))
+    .filter(item => item.value > 0);
+}
+
+function comparisonStatusMetric(rows, metric) {
+  return ["new", "removed", "increased", "decreased", "changed", "unchanged"]
+    .map(type => ({ label: type, value: rows.filter(row => row.changeType === type).reduce((total, row) => total + Math.abs(Number(row[metric]) || 0), 0) }))
+    .filter(item => item.value > 0);
+}
+
+function topComparisonRows(rows, metric, direction, normalLimit = 10, limit = 10) {
+  const map = new Map();
+  rows
+    .filter(row => direction === "positive" ? Number(row[metric]) > 0.0001 : Number(row[metric]) < -0.0001)
+    .forEach(row => {
+      const label = row.product || row.key || "Unspecified";
+      map.set(label, (map.get(label) || 0) + Math.abs(Number(row[metric]) || 0));
+    });
+  return Array.from(map.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, limit || normalLimit);
+}
+
+function comparisonGroupedBaseCompare(rows, groupKey, baseMetric, compareMetric) {
+  const map = new Map();
+  rows.forEach(row => {
+    const label = row[groupKey] || "Unspecified";
+    if (!map.has(label)) map.set(label, { label, first: 0, second: 0, value: 0 });
+    const item = map.get(label);
+    item.first += Math.abs(Number(row[baseMetric]) || 0);
+    item.second += Math.abs(Number(row[compareMetric]) || 0);
+    item.value = Math.max(item.first, item.second);
+  });
+  return Array.from(map.values()).filter(item => item.first || item.second).sort((a, b) => b.value - a.value);
+}
+
+function comparisonGroupChangedCount(rows, groupKey) {
+  const map = new Map();
+  rows.filter(row => row.changeType !== "unchanged").forEach(row => {
+    const label = row[groupKey] || "Unspecified";
+    map.set(label, (map.get(label) || 0) + 1);
+  });
+  return Array.from(map.entries()).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+}
+
+function comparisonGroupAbsSum(rows, groupKey, metric) {
+  const map = new Map();
+  rows.forEach(row => {
+    const value = Math.abs(Number(row[metric]) || 0);
+    if (!value) return;
+    const label = row[groupKey] || "Unspecified";
+    map.set(label, (map.get(label) || 0) + value);
+  });
+  return Array.from(map.entries()).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+}
+
+function renderComparisonTable(rows, totalRows = rows.length, activeView = "all") {
+  const table = $("#comparisonTable");
+  const note = $("#comparisonTableNote");
+  if (!table) return;
+  const limit = 300;
+  const visibleRows = rows.slice(0, limit);
+  const columns = [
+    { key: "product", label: t("colCompareProduct"), kind: "text" },
+    { key: "category", label: t("colCompareCategory"), kind: "text" },
+    { key: "location", label: t("colCompareLocation"), kind: "text" },
+    { key: "lot", label: t("colCompareLot"), kind: "text" },
+    { key: "uom", label: t("colCompareUom"), kind: "text" },
+    { key: "baseOnHand", label: t("colBaseOnHand"), kind: "number" },
+    { key: "compareOnHand", label: t("colCompareOnHand"), kind: "number" },
+    { key: "deltaOnHand", label: t("colDeltaOnHand"), kind: "signedNumber" },
+    { key: "deltaOnHandPct", label: t("colDeltaQtyPercent"), kind: "signedPercent" },
+    { key: "baseAvailable", label: t("colBaseAvailable"), kind: "number" },
+    { key: "compareAvailable", label: t("colCompareAvailable"), kind: "number" },
+    { key: "deltaAvailable", label: t("colDeltaAvailable"), kind: "signedNumber" },
+    { key: "baseReserved", label: t("colBaseReserved"), kind: "number" },
+    { key: "compareReserved", label: t("colCompareReserved"), kind: "number" },
+    { key: "deltaReserved", label: t("colDeltaReserved"), kind: "signedNumber" },
+    { key: "baseValue", label: t("colBaseValue"), kind: "currency" },
+    { key: "compareValue", label: t("colCompareValue"), kind: "currency" },
+    { key: "deltaValue", label: t("colDeltaValue"), kind: "signedMoney" },
+    { key: "deltaValuePct", label: t("colDeltaValuePercent"), kind: "signedPercent" },
+    { key: "baseUnitValue", label: t("colBaseUnitValue"), kind: "currency" },
+    { key: "compareUnitValue", label: t("colCompareUnitValue"), kind: "currency" },
+    { key: "deltaUnitValue", label: t("colDeltaUnitValue"), kind: "signedMoney" },
+    { key: "sourceRows", label: t("colCurrentRows"), kind: "number" },
+    { key: "comparisonRows", label: t("colComparisonRows"), kind: "number" },
+    { key: "changeType", label: t("colCompareStatus"), kind: "comparisonStatus" }
+  ];
+  const emptyRow = `<tr><td colspan="${columns.length}" class="comparison-empty-row">${escapeHtml(t("comparisonNoRows"))}</td></tr>`;
+  table.innerHTML = `
+    <thead><tr>${columns.map(column => `<th>${escapeHtml(column.label)}</th>`).join("")}</tr></thead>
+    <tbody>${visibleRows.length ? visibleRows.map(row => `<tr>${columns.map(column => `<td>${formatComparisonCell(row, column)}</td>`).join("")}</tr>`).join("") : emptyRow}</tbody>
+  `;
+  if (note) {
+    const notes = [];
+    if (activeView !== "all") notes.push(t("comparisonActiveView", { view: comparisonViewLabel(activeView), shown: numberFormatter.format(rows.length), total: numberFormatter.format(totalRows) }));
+    if (rows.length > limit) notes.push(t("comparisonTableCapped", { shown: numberFormatter.format(limit), total: numberFormatter.format(rows.length) }));
+    note.textContent = notes.join(" • ");
+  }
+}
+
+function bindComparisonKpiCards() {
+  $$("[data-comparison-view]").forEach(card => {
+    card.addEventListener("click", () => applyComparisonView(card.dataset.comparisonView));
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        applyComparisonView(card.dataset.comparisonView);
+      }
+    });
+  });
+}
+
+function applyComparisonView(view) {
+  if (!state.comparison.resultRows.length) return;
+  state.comparison.activeView = view || "all";
+  renderComparisonPanel();
+  $("#comparisonTable")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderComparisonViewBar(activeView, shownCount, totalRows) {
+  const bar = $("#comparisonViewBar");
+  const label = $("#comparisonViewLabel");
+  if (!bar || !label) return;
+  bar.hidden = activeView === "all";
+  label.textContent = t("comparisonActiveView", { view: comparisonViewLabel(activeView), shown: numberFormatter.format(shownCount), total: numberFormatter.format(totalRows) });
+}
+
+function filterComparisonRows(rows, view) {
+  const activeView = view || "all";
+  switch (activeView) {
+    case "changed": return rows.filter(row => row.changeType !== "unchanged");
+    case "new": return rows.filter(row => row.changeType === "new");
+    case "removed": return rows.filter(row => row.changeType === "removed");
+    case "increased": return rows.filter(row => row.changeType === "increased");
+    case "decreased": return rows.filter(row => row.changeType === "decreased");
+    case "unchanged": return rows.filter(row => row.changeType === "unchanged");
+    case "matched": return rows.filter(row => row.existsInBase && row.existsInComparison);
+    case "qtyChanged": return rows.filter(row => Math.abs(row.deltaOnHand) > 0.0001);
+    case "availableChanged": return rows.filter(row => Math.abs(row.deltaAvailable) > 0.0001);
+    case "reservedChanged": return rows.filter(row => Math.abs(row.deltaReserved) > 0.0001);
+    case "valueChanged": return rows.filter(row => Math.abs(row.deltaValue) > 0.0001);
+    case "qtyOnly": return rows.filter(row => Math.abs(row.deltaOnHand) > 0.0001 && Math.abs(row.deltaValue) <= 0.0001);
+    case "valueOnly": return rows.filter(row => Math.abs(row.deltaValue) > 0.0001 && Math.abs(row.deltaOnHand) <= 0.0001);
+    case "qtyAndValue": return rows.filter(row => Math.abs(row.deltaOnHand) > 0.0001 && Math.abs(row.deltaValue) > 0.0001);
+    case "positiveValue": return rows.filter(row => row.deltaValue > 0.0001);
+    case "negativeValue": return rows.filter(row => row.deltaValue < -0.0001);
+    case "positiveQty": return rows.filter(row => row.deltaOnHand > 0.0001);
+    case "negativeQty": return rows.filter(row => row.deltaOnHand < -0.0001);
+    case "unitValueChanged": return rows.filter(row => Math.abs(row.deltaUnitValue) > 0.0001);
+    case "affectedProducts": {
+      const products = new Set(rows.filter(row => row.changeType !== "unchanged").map(row => row.product).filter(Boolean));
+      return rows.filter(row => products.has(row.product));
+    }
+    case "affectedLocations": {
+      const locations = new Set(rows.filter(row => row.changeType !== "unchanged").map(row => row.location).filter(Boolean));
+      return rows.filter(row => locations.has(row.location));
+    }
+    case "all":
+    default: return rows;
+  }
+}
+
+function comparisonViewLabel(view) {
+  const keys = {
+    all: "comparisonViewAll",
+    changed: "comparisonViewChanged",
+    new: "comparisonViewNew",
+    removed: "comparisonViewRemoved",
+    increased: "comparisonViewIncreased",
+    decreased: "comparisonViewDecreased",
+    unchanged: "comparisonViewUnchanged",
+    qtyChanged: "comparisonViewQtyChanged",
+    availableChanged: "comparisonViewAvailableChanged",
+    reservedChanged: "comparisonViewReservedChanged",
+    valueChanged: "comparisonViewValueChanged",
+    qtyOnly: "comparisonViewQtyOnly",
+    valueOnly: "comparisonViewValueOnly",
+    qtyAndValue: "comparisonViewQtyAndValue",
+    positiveValue: "comparisonViewPositiveValue",
+    negativeValue: "comparisonViewNegativeValue",
+    matched: "comparisonViewMatched",
+    affectedProducts: "comparisonViewAffectedProducts",
+    affectedLocations: "comparisonViewAffectedLocations",
+    positiveQty: "comparisonViewPositiveQty",
+    negativeQty: "comparisonViewNegativeQty",
+    unitValueChanged: "comparisonViewUnitValueChanged"
+  };
+  return t(keys[view] || "comparisonViewAll");
+}
+
+function formatComparisonCell(row, column) {
+  const value = row[column.key];
+  if (column.kind === "number") return escapeHtml(numberFormatter.format(value || 0));
+  if (column.kind === "currency") return escapeHtml(currencyFormatter.format(value || 0));
+  if (column.kind === "signedNumber") return `<span class="comparison-delta ${deltaClass(value)}">${escapeHtml(formatSignedNumber(value))}</span>`;
+  if (column.kind === "signedMoney") return `<span class="comparison-delta ${deltaClass(value)}">${escapeHtml(formatSignedMoney(value))}</span>`;
+  if (column.kind === "signedPercent") return `<span class="comparison-delta ${deltaClass(value)}">${escapeHtml(formatSignedPercent(value))}</span>`;
+  if (column.kind === "comparisonStatus") return `<span class="comparison-status comparison-${escapeHtml(row.changeType)}">${escapeHtml(comparisonStatusLabel(row.changeType))}</span>`;
+  return escapeHtml(value || "");
+}
+
+function comparisonStatusLabel(type) {
+  const keys = {
+    new: "comparisonNew",
+    removed: "comparisonRemoved",
+    increased: "comparisonIncreased",
+    decreased: "comparisonDecreased",
+    changed: "comparisonChanged",
+    unchanged: "comparisonUnchanged"
+  };
+  return t(keys[type] || "comparisonChanged");
+}
+
+function formatSignedNumber(value) {
+  const number = Number(value) || 0;
+  const prefix = number > 0 ? "+" : "";
+  return prefix + numberFormatter.format(number);
+}
+
+function formatSignedMoney(value) {
+  const number = Number(value) || 0;
+  const prefix = number > 0 ? "+" : "";
+  return prefix + currencyFormatter.format(number);
+}
+
+function formatSignedPercent(value) {
+  const number = Number(value) || 0;
+  const prefix = number > 0 ? "+" : "";
+  return prefix + numberFormatter.format(number) + "%";
+}
+
+function deltaClass(value) {
+  const number = Number(value) || 0;
+  if (number > 0) return "positive";
+  if (number < 0) return "negative";
+  return "neutral";
+}
+
+function resetComparisonData() {
+  state.comparison = { rows: [], resultRows: [], summary: null, fileName: "", comparedAt: null, activeView: "all" };
+  applyComparisonChartVisibility();
+  renderComparisonPanel();
+}
+
+function clearComparisonData() {
+  if (!state.comparison.resultRows.length) return;
+  if (!confirm(t("comparisonClearConfirm"))) return;
+  resetComparisonData();
+}
+
+function exportComparison(type) {
+  const rows = state.comparison.resultRows || [];
+  if (!rows.length) return showMessage(t("comparisonExportEmpty"));
+  const exportRows = [
+    [t("colCompareProduct"), t("colCompareCategory"), t("colCompareLocation"), t("colCompareLot"), t("colCompareUom"), t("colBaseOnHand"), t("colCompareOnHand"), t("colDeltaOnHand"), t("colDeltaQtyPercent"), t("colBaseAvailable"), t("colCompareAvailable"), t("colDeltaAvailable"), t("colBaseReserved"), t("colCompareReserved"), t("colDeltaReserved"), t("colBaseValue"), t("colCompareValue"), t("colDeltaValue"), t("colDeltaValuePercent"), t("colBaseUnitValue"), t("colCompareUnitValue"), t("colDeltaUnitValue"), t("colCurrentRows"), t("colComparisonRows"), t("colCompareStatus")],
+    ...rows.map(row => [row.product, row.category, row.location, row.lot, row.uom, row.baseOnHand, row.compareOnHand, row.deltaOnHand, row.deltaOnHandPct, row.baseAvailable, row.compareAvailable, row.deltaAvailable, row.baseReserved, row.compareReserved, row.deltaReserved, row.baseValue, row.compareValue, row.deltaValue, row.deltaValuePct, row.baseUnitValue, row.compareUnitValue, row.deltaUnitValue, row.sourceRows, row.comparisonRows, comparisonStatusLabel(row.changeType)])
+  ];
+  if (type === "csv") downloadCsv("inventory_comparison.csv", exportRows);
+  else downloadXlsx("inventory_comparison.xlsx", exportRows);
 }
 
 function renderTable() {
@@ -2144,7 +3293,19 @@ function columnLabel(column) {
 }
 
 function statusLabel(status) {
-  return { Ready: t("statusReady"), Low: t("statusLow"), Negative: t("statusNegative"), Out: t("statusOut"), Reserved: t("statusReserved") }[status] || status;
+  return {
+    Ready: t("statusReady"),
+    Low: t("statusLow"),
+    Negative: t("statusNegative"),
+    Out: t("statusOut"),
+    Reserved: t("statusReserved"),
+    new: t("comparisonNew"),
+    removed: t("comparisonRemoved"),
+    increased: t("comparisonIncreased"),
+    decreased: t("comparisonDecreased"),
+    changed: t("comparisonChanged"),
+    unchanged: t("comparisonUnchanged")
+  }[status] || status;
 }
 
 function aggregateRowsByProduct(rows) {
@@ -2586,6 +3747,7 @@ function drawLineChart(canvas, data, options) {
   const margin = { top: 54, right: 24, bottom: 52, left: 60 };
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
+  const formatValue = value => options.valueFormatter ? options.valueFormatter(value) : numberFormatter.format(value);
   const max = Math.max(...data.map(item => item.value), 1);
   ctx.strokeStyle = chartLineColor();
   ctx.fillStyle = chartMutedColor();
@@ -2596,7 +3758,7 @@ function drawLineChart(canvas, data, options) {
     ctx.moveTo(margin.left, y);
     ctx.lineTo(margin.left + chartWidth, y);
     ctx.stroke();
-    ctx.fillText(numberFormatter.format(max * i / 4), 12, y + 4);
+    ctx.fillText(formatValue(max * i / 4), 12, y + 4);
   }
   const points = data.map((item, index) => {
     const x = margin.left + (data.length === 1 ? chartWidth / 2 : chartWidth * index / (data.length - 1));
@@ -2614,7 +3776,7 @@ function drawLineChart(canvas, data, options) {
     ctx.beginPath();
     ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
     ctx.fill();
-    canvas._hitboxes.push({ x: point.x - 10, y: point.y - 10, w: 20, h: 20, label: point.label, value: point.value, text: `${point.label}: ${numberFormatter.format(point.value)} available qty` });
+    canvas._hitboxes.push({ x: point.x - 10, y: point.y - 10, w: 20, h: 20, label: point.label, value: point.value, text: `${point.label}: ${formatValue(point.value)}` });
   });
   ctx.fillStyle = chartMutedColor();
   ctx.textAlign = "center";

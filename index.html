@@ -16,6 +16,7 @@
     </div>
     <div class="topbar-actions">
       <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+      <input id="compareFileInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
       <div class="settings-wrap">
         <button id="settingsBtn" class="pill-btn settings-btn" type="button" aria-haspopup="true" aria-expanded="false">
           <span>⚙️</span><span data-i18n="settings">الإعدادات</span>
@@ -40,6 +41,7 @@
             <span data-i18n="dataActions">الملفات</span>
             <div class="settings-action-grid">
               <button id="importBtn" class="pill-btn primary" type="button" data-i18n="importFile">📁 استيراد ملف</button>
+              <button id="compareImportBtn" class="pill-btn" type="button" data-i18n="importCompareFile">📊 استيراد ملف مقارنة XLSX</button>
               <button id="templateXlsxBtn" class="pill-btn" type="button" data-i18n="templateXlsx">⬇ قالب XLSX</button>
               <button id="templateCsvBtn" class="pill-btn" type="button" data-i18n="templateCsv">⬇ قالب CSV</button>
             </div>
@@ -116,6 +118,44 @@
         <article id="kpiDatedCard" class="kpi-card amber optional-kpi clickable-kpi" data-kpi-card="dated" hidden role="button" tabindex="0" data-kpi-view="dated"><span data-i18n="kpiDated">بتاريخ إزالة</span><strong id="kpiDated">0</strong><small data-i18n="kpiDatedSub">صفوف لها تاريخ</small></article>
         <article id="kpiAvgUnitValueCard" class="kpi-card green optional-kpi clickable-kpi" data-kpi-card="avgUnitValue" hidden role="button" tabindex="0" data-kpi-view="avgUnitValue"><span data-i18n="kpiAvgUnitValue">متوسط قيمة الوحدة</span><strong id="kpiAvgUnitValue">0</strong><small data-i18n="kpiAvgUnitValueSub">القيمة ÷ الكمية</small></article>
         <article id="kpiReservedValueCard" class="kpi-card rose optional-kpi clickable-kpi" data-kpi-card="reservedValue" hidden role="button" tabindex="0" data-kpi-view="reservedValue"><span data-i18n="kpiReservedValue">قيمة المحجوز</span><strong id="kpiReservedValue">0</strong><small data-i18n="kpiReservedValueSub">قيمة صفوف محجوزة</small></article>
+      </section>
+
+      <section id="comparisonPanel" class="comparison-section" hidden aria-label="Inventory comparison">
+        <div class="comparison-header">
+          <div>
+            <h2 data-i18n="comparisonTitle">مقارنة بيانات المخزون</h2>
+            <p id="comparisonInfo" data-i18n="comparisonEmptyHint">استورد ملف XLSX آخر من الإعدادات لمقارنته مع البيانات الحالية.</p>
+          </div>
+          <div class="comparison-actions">
+            <details id="comparisonKpiSelectorMenu" class="chart-selector comparison-selector">
+              <summary><span aria-hidden="true">🧮</span><span data-i18n="comparisonMetricSelectors">مؤشرات المقارنة</span></summary>
+              <div id="comparisonKpiSelectorOptions" class="chart-selector-options comparison-selector-options"></div>
+            </details>
+            <details id="comparisonChartSelectorMenu" class="chart-selector comparison-selector">
+              <summary><span aria-hidden="true">📈</span><span data-i18n="comparisonChartSelectors">رسوم المقارنة</span></summary>
+              <div id="comparisonChartSelectorOptions" class="chart-selector-options comparison-selector-options"></div>
+            </details>
+            <button id="exportComparisonCsvBtn" class="pill-btn primary" type="button" data-i18n="exportComparisonCsv">⬇ تصدير CSV</button>
+            <button id="exportComparisonXlsxBtn" class="pill-btn" type="button" data-i18n="exportComparisonXlsx">⬇ تصدير XLSX</button>
+            <button id="clearComparisonBtn" class="pill-btn danger" type="button" data-i18n="clearComparison">مسح المقارنة</button>
+          </div>
+        </div>
+        <div id="comparisonSummary" class="comparison-summary"></div>
+        <div class="comparison-charts-block">
+          <div class="comparison-charts-header">
+            <h3 data-i18n="comparisonChartsTitle">رسوم المقارنة</h3>
+            <p id="comparisonChartsEmpty" class="comparison-note" data-i18n="comparisonChartsEmpty">اختر رسوم المقارنة من القائمة لعرضها.</p>
+          </div>
+          <div id="comparisonChartsGrid" class="charts-grid comparison-charts-grid"></div>
+        </div>
+        <div id="comparisonViewBar" class="comparison-view-bar" hidden>
+          <strong id="comparisonViewLabel"></strong>
+          <button id="clearComparisonViewBtn" class="pill-btn" type="button" data-i18n="clearComparisonView">عرض كل المقارنة</button>
+        </div>
+        <div class="comparison-table-wrap">
+          <table id="comparisonTable" class="comparison-table"></table>
+        </div>
+        <p id="comparisonTableNote" class="comparison-note"></p>
       </section>
 
       <section class="charts-section" aria-label="Inventory charts">
