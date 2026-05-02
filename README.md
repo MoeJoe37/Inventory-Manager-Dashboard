@@ -273,7 +273,7 @@ The comparison export includes detailed fields such as current quantity, compari
 The importer supports Arabic and English Odoo-style inventory headers.
 
 | Internal field | English  | Required |
-|---|---|---|---|
+|---|---|---|
 | Product | Product | Yes |
 | Product category | Product Category | Yes |
 | Location | Location | Yes |
