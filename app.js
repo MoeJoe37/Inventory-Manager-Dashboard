@@ -902,7 +902,16 @@ function bindEvents() {
   window.addEventListener("resize", debounce(handleViewportChange, 80));
   window.addEventListener("scroll", debounce(handleViewportChange, 80), true);
   $("#fileInput").addEventListener("change", event => handleFileImport(event.target.files[0]));
-  $("#compareImportBtn")?.addEventListener("click", () => {
+  const compareImportControl = $("#compareImportBtn");
+  compareImportControl?.addEventListener("click", event => {
+    if (!state.rows.length) {
+      event.preventDefault();
+      return showMessage(t("comparisonNeedsMain"));
+    }
+  });
+  compareImportControl?.addEventListener("keydown", event => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
     if (!state.rows.length) return showMessage(t("comparisonNeedsMain"));
     $("#compareFileInput")?.click();
   });
@@ -1100,6 +1109,7 @@ function updateSettingsUi() {
   $("#themeDarkBtn")?.classList.toggle("active", state.theme === "dark");
   $("#langArBtn")?.classList.toggle("active", state.language === "ar");
   $("#langEnBtn")?.classList.toggle("active", state.language === "en");
+  $("#compareImportBtn")?.setAttribute("aria-disabled", String(!state.rows.length));
 }
 
 function updateMoreChartsUi() {

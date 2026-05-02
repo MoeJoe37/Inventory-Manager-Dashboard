@@ -6,7 +6,7 @@
   <title>Inventory Manager</title>
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260502-comparison-hosting-fix">
 </head>
 <body>
   <header class="topbar">
@@ -15,8 +15,8 @@
       <span id="lastUpdated">آخر تحديث: لم يتم الاستيراد بعد</span>
     </div>
     <div class="topbar-actions">
-      <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
-      <input id="compareFileInput" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+      <input id="fileInput" class="file-input-hidden" type="file" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      <input id="compareFileInput" class="file-input-hidden" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
       <div class="settings-wrap">
         <button id="settingsBtn" class="pill-btn settings-btn" type="button" aria-haspopup="true" aria-expanded="false">
           <span>⚙️</span><span data-i18n="settings">الإعدادات</span>
@@ -41,7 +41,7 @@
             <span data-i18n="dataActions">الملفات</span>
             <div class="settings-action-grid">
               <button id="importBtn" class="pill-btn primary" type="button" data-i18n="importFile">📁 استيراد ملف</button>
-              <button id="compareImportBtn" class="pill-btn" type="button" data-i18n="importCompareFile">📊 استيراد ملف مقارنة XLSX</button>
+              <label id="compareImportBtn" class="pill-btn file-pick-label" for="compareFileInput" role="button" tabindex="0" data-i18n="importCompareFile">📊 استيراد ملف مقارنة XLSX</label>
               <button id="templateXlsxBtn" class="pill-btn" type="button" data-i18n="templateXlsx">⬇ قالب XLSX</button>
               <button id="templateCsvBtn" class="pill-btn" type="button" data-i18n="templateCsv">⬇ قالب CSV</button>
             </div>
@@ -221,6 +221,6 @@
     </div>
   </div>
   <div id="tooltip" class="tooltip" hidden></div>
-  <script src="app.js"></script>
+  <script src="app.js?v=20260502-comparison-hosting-fix"></script>
 </body>
 </html>
