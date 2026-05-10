@@ -44,9 +44,8 @@ const IGNORED_IMPORT_COLUMNS = new Set([
 
 const I18N = {
   ar: {
-    appTitle: "لوحة مراقبة المخزون — هلال الشرق",
+    appTitle: "لوحة مراقبة المخزون — EC",
     settings: "الإعدادات",
-    home: "الرئيسية",
     appearance: "المظهر",
     lightMode: "☀️ فاتح",
     darkMode: "🌙 داكن",
@@ -364,7 +363,6 @@ const I18N = {
   en: {
     appTitle: "Inventory Monitoring Dashboard — EC",
     settings: "Settings",
-    home: "Home",
     appearance: "Appearance",
     lightMode: "☀️ Light",
     darkMode: "🌙 Dark",
